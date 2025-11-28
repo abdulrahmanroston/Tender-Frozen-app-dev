@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FF Warehouses</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2c3e50; --secondary: #3498db; --success: #27ae60;
+            --danger: #e74c3c; --warning: #f39c12; --bg-light: #f8f9fa;
+            --text-dark: #2c3e50; --text-light: #7f8c8d; --border: #dfe6e9;
+            --bottom-nav-height: 65px; --header-height: 60px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-light); overflow-x: hidden;
+            padding-bottom: var(--bottom-nav-height);
+        }
+
+        /* LOGIN */
+        #loginScreen {
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 20px;
+        }
+        .login-card {
+            background: white; border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px 30px; max-width: 400px; width: 100%;
+        }
+        .login-logo { text-align: center; margin-bottom: 30px; }
+        .login-logo i { font-size: 4rem; color: var(--primary); }
+        .form-control { border-radius: 10px; padding: 12px; border: 2px solid var(--border); }
+        .btn-login { border-radius: 10px; padding: 12px; font-weight: 600; }
+
+        /* APP */
+        #appContainer { display: none; padding-top: var(--header-height); }
+        .app-header {
+            position: fixed; top: 0; left: 0; right: 0; height: var(--header-height);
+            background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 15px; z-index: 1000;
+        }
+        .app-header h5 { margin: 0; font-size: 1.1rem; font-weight: 700; }
+        .btn-header {
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--bg-light); border: none;
+        }
+
+        /* CONTENT */
+        .main-content { padding: 15px; max-width: 1200px; margin: 0 auto; }
+
+        /* BOTTOM NAV */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            height: var(--bottom-nav-height); background: white;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex; justify-content: space-around; z-index: 1000;
+        }
+        .nav-item-bottom {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            color: var(--text-light); text-decoration: none;
+            transition: all 0.2s; padding: 8px 5px;
+        }
+        .nav-item-bottom i { font-size: 1.4rem; margin-bottom: 3px; }
+        .nav-item-bottom span { font-size: 0.7rem; }
+        .nav-item-bottom.active { color: var(--secondary); }
+
+        /* CARDS */
+        .card { border: none; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 15px; }
+        .stat-card { padding: 20px; text-align: center; }
+        .stat-card i { font-size: 2.5rem; margin-bottom: 10px; }
+        .stat-card h3 { font-size: 2rem; margin: 10px 0 5px; }
+
+        /* INLINE LOADING */
+        .inline-loading {
+            text-align: center; padding: 30px;
+            background: white; border-radius: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .spinner-sm {
+            width: 30px; height: 30px; border: 3px solid var(--border);
+            border-top-color: var(--secondary); border-radius: 50%;
+            animation: spin 0.8s linear infinite; display: inline-block;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* PRODUCT CARD */
+        .product-card {
+            display: flex; padding: 12px; border-bottom: 1px solid var(--border);
+            transition: background 0.2s; position: relative;
+        }
+        .product-card:hover { background: var(--bg-light); }
+        .product-card.bulk-mode { padding-left: 50px; }
+        .product-card.hidden { display: none; }
+        .product-card-checkbox {
+            position: absolute; left: 15px; top: 50%;
+            transform: translateY(-50%);
+        }
+        .product-card-img {
+            width: 70px; height: 70px; border-radius: 10px;
+            object-fit: cover; margin-right: 12px; border: 2px solid var(--border);
+        }
+        .product-card-body { flex: 1; }
+        .product-card-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+        .product-card-meta { display: flex; gap: 8px; margin: 4px 0; flex-wrap: wrap; }
+        .product-badge { padding: 3px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; }
+        .product-card-actions { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+        .btn-xs { padding: 4px 10px; font-size: 0.75rem; border-radius: 6px; }
+        
+        /* BULK INPUT */
+        .bulk-input {
+            width: 60px; padding: 4px 8px; border-radius: 6px;
+            border: 2px solid var(--secondary); text-align: center;
+            font-weight: 600; font-size: 0.85rem;
+        }
+
+        /* TABS */
+        .nav-tabs { border-bottom: 2px solid var(--border); margin-bottom: 15px; }
+        .nav-tabs .nav-link {
+            border: none; color: var(--text-light);
+            padding: 10px 15px; font-weight: 600; cursor: pointer;
+        }
+        .nav-tabs .nav-link.active {
+            color: var(--secondary); border-bottom: 3px solid var(--secondary);
+        }
+
+        /* FILTERS */
+        .filter-pills {
+            display: flex; gap: 8px; overflow-x: auto;
+            padding: 10px 0; margin-bottom: 15px;
+        }
+        .filter-pill {
+            padding: 6px 12px; border-radius: 20px;
+            background: white; border: 2px solid var(--border);
+            font-size: 0.85rem; white-space: nowrap;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .filter-pill.active {
+            background: var(--secondary); color: white;
+            border-color: var(--secondary);
+        }
+
+        /* BULK EDIT BAR */
+        .bulk-bar {
+            position: fixed; bottom: var(--bottom-nav-height); left: 0; right: 0;
+            background: var(--primary); color: white; padding: 12px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 999; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            transform: translateY(100%); transition: transform 0.3s;
+        }
+        .bulk-bar.active { transform: translateY(0); }
+
+        /* LOG ENTRY */
+        .log-timeline { position: relative; padding-left: 30px; }
+        .log-timeline::before {
+            content: ''; position: absolute; left: 10px; top: 0; bottom: 0;
+            width: 2px; background: var(--border);
+        }
+        .log-entry {
+            position: relative; margin-bottom: 20px;
+            background: white; border-radius: 12px;
+            padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .log-entry > div { margin-bottom: 8px; }
+        .log-entry::before {
+            content: ''; position: absolute; left: -25px; top: 20px;
+            width: 12px; height: 12px; border-radius: 50%;
+            background: var(--secondary); border: 3px solid white;
+            box-shadow: 0 0 0 2px var(--secondary);
+        }
+        .log-header {
+            display: flex; justify-content: space-between;
+            align-items: start; margin-bottom: 10px;
+        }
+        .log-product { font-weight: 700; font-size: 0.95rem; }
+        .log-time { font-size: 0.75rem; color: var(--text-light); }
+        .log-action { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; margin-bottom: 10px; }
+        .log-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 10px; }
+        .log-item { background: var(--bg-light); padding: 8px; border-radius: 8px; }
+        .log-item-label { font-size: 0.7rem; color: var(--text-light); }
+        .log-item-value { font-weight: 700; font-size: 0.9rem; }
+        .log-notes {
+            background: #fff3cd; padding: 10px; border-radius: 8px;
+            font-size: 0.85rem; border-left: 3px solid var(--warning);
+        }
+        .log-order-link {
+            background: #d1ecf1; padding: 8px; border-radius: 8px;
+            font-size: 0.85rem; border-left: 3px solid #17a2b8;
+            margin-top: 8px;
+        }
+        .log-order-link a {
+            color: #17a2b8; font-weight: 600; text-decoration: none;
+        }
+
+        /* MODAL */
+        .modal-content { border-radius: 15px; }
+        .modal-header { background: var(--primary); color: white; border-radius: 15px 15px 0 0; }
+
+        /* TOAST */
+        .toast-container {
+            position: fixed; bottom: calc(var(--bottom-nav-height) + 10px);
+            left: 10px; right: 10px; z-index: 1050;
+        }
+        .toast { border-radius: 10px; margin-bottom: 10px; }
+
+        /* RESPONSIVE */
+        @media (min-width: 768px) {
+            .main-content { padding: 30px; }
+            .log-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN -->
+    <div id="loginScreen">
+        <div class="login-card">
+            <div class="login-logo">
+                <i class="bi bi-building"></i>
+                <h3>FF Warehouses</h3>
+            </div>
+            <form id="loginForm">
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="phone" placeholder="Phone" required>
+                </div>
+                <div class="mb-3">
+                    <input type="password" class="form-control" id="password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 btn-login">
+                    <i class="bi bi-box-arrow-in-right"></i> Sign In
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- APP -->
+    <div id="appContainer">
+        <header class="app-header">
+            <div>
+                <h5 id="pageTitle">Dashboard</h5>
+                <small id="userInfo"></small>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn-header" id="refreshBtn"><i class="bi bi-arrow-clockwise"></i></button>
+                <button class="btn-header" id="logoutBtn"><i class="bi bi-box-arrow-right"></i></button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div id="contentArea"></div>
+        </main>
+
+        <!-- BULK EDIT BAR -->
+        <div class="bulk-bar" id="bulkBar">
+            <span><span id="bulkCount">0</span> selected</span>
+            <div>
+                <button class="btn btn-sm btn-warning me-2" onclick="Inventory.bulkApply()">
+                    <i class="bi bi-check"></i> Apply
+                </button>
+                <button class="btn btn-sm btn-light" onclick="Inventory.cancelBulk()">Cancel</button>
+            </div>
+        </div>
+
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item-bottom active" data-section="dashboard">
+                <i class="bi bi-speedometer2"></i><span>Home</span>
+            </a>
+            <a href="#" class="nav-item-bottom" data-section="warehouses">
+                <i class="bi bi-building"></i><span>Warehouses</span>
+            </a>
+            <a href="#" class="nav-item-bottom" data-section="inventory">
+                <i class="bi bi-box-seam"></i><span>Inventory</span>
+            </a>
+            <a href="#" class="nav-item-bottom" data-section="transfers">
+                <i class="bi bi-arrow-left-right"></i><span>Transfers</span>
+            </a>
+            <a href="#" class="nav-item-bottom" data-section="stock-log">
+                <i class="bi bi-journal-text"></i><span>Log</span>
+            </a>
+        </nav>
+    </div>
+
+    <div id="modalsContainer"></div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        'use strict';
+
+        // ==========================================
+        // CONFIG
+        // ==========================================
+        const CONFIG = {
+            DEBUG_MODE: true,
+            API_BASE_URL: 'https://darkviolet-antelope-523488.hostingersite.com',
+            API_NAMESPACE: '/wp-json',
+            ENDPOINTS: {
+                AUTH_LOGIN: '/shrms/v1/auth/login',
+                WAREHOUSES: '/ff/v1/warehouses',
+                WAREHOUSE_PRODUCTS: '/ff/v1/warehouses/{id}/products',
+                INVENTORY_ADJUSTMENTS: '/ff/v1/warehouses/{id}/inventory-adjustments',
+                UPSERT_PRODUCTS: '/ff/v1/warehouses/{id}/products',
+                TRANSFERS: '/ff/v1/transfers',
+                STOCK_LOG: '/ff/v1/stock-log',
+                WC_PRODUCTS: '/wc/v3/products'
+            }
+        };
+
+        // ==========================================
+        // LOGGER
+        // ==========================================
+        const Logger = {
+            log(c, m, d, l = 'info') {
+                if (!CONFIG.DEBUG_MODE) return;
+                const s = { info: 'color: #3498db', success: 'color: #27ae60; font-weight: bold', 
+                           warn: 'color: #f39c12; font-weight: bold', error: 'color: #e74c3c; font-weight: bold' };
+                console.log(`%c[${c}] ${m}`, s[l], d || '');
+            },
+            info(c, m, d) { this.log(c, m, d, 'info'); },
+            success(c, m, d) { this.log(c, m, d, 'success'); },
+            warn(c, m, d) { this.log(c, m, d, 'warn'); },
+            error(c, m, d) { this.log(c, m, d, 'error'); }
+        };
+
+        // ==========================================
+        // AUTH MANAGER
+        // ==========================================
+        const Auth = {
+            KEY: 'ff_auth',
+
+            save(token, user, permissions = {}) {
+                const authData = {
+                    token,
+                    user: { id: user.id, name: user.name, phone: user.phone, email: user.email, 
+                           role: user.role, wp_user_id: user.wp_user_id },
+                    permissions,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem(this.KEY, JSON.stringify(authData));
+                Logger.success('AUTH', 'Data saved', authData);
+            },
+
+            load() {
+                const data = localStorage.getItem(this.KEY);
+                if (!data) return null;
+                try {
+                    return JSON.parse(data);
+                } catch (e) {
+                    return null;
+                }
+            },
+
+            clear() {
+                localStorage.removeItem(this.KEY);
+            },
+
+            getToken() {
+                const data = this.load();
+                return data ? data.token : null;
+            },
+
+            getUser() {
+                const data = this.load();
+                return data ? data.user : null;
+            },
+
+            isAuthenticated() {
+                return !!this.getToken();
+            }
+        };
+
+        // ==========================================
+        // STATE
+        // ==========================================
+        const AppState = {
+            currentSection: 'dashboard',
+            
+            init() {
+                if (Auth.isAuthenticated()) {
+                    this.showApp();
+                }
+            },
+            
+            showApp() {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
+                const user = Auth.getUser();
+                if (user) document.getElementById('userInfo').textContent = user.name;
+                navigateToSection('dashboard');
+            }
+        };
+
+        // ==========================================
+        // API
+        // ==========================================
+        const API = {
+            async request(endpoint, options = {}) {
+                const url = `${CONFIG.API_BASE_URL}${CONFIG.API_NAMESPACE}${endpoint}`;
+                const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
+                const token = Auth.getToken();
+                if (token) headers['Authorization'] = `Bearer ${token}`;
+
+                const config = { method: options.method || 'GET', headers: { ...headers, ...options.headers } };
+                if (options.body) config.body = JSON.stringify(options.body);
+
+                try {
+                    const response = await fetch(url, config);
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.message || 'API Error');
+                    return data;
+                } catch (error) {
+                    Logger.error('API', 'Failed', error);
+                    throw error;
+                }
+            },
+
+            login(phone, password) {
+                return this.request(CONFIG.ENDPOINTS.AUTH_LOGIN, { method: 'POST', body: { phone, password } });
+            },
+
+            getWarehouses(status = '') {
+                return this.request(`${CONFIG.ENDPOINTS.WAREHOUSES}${status ? '?status=' + status : ''}`);
+            },
+
+            getWarehouseProducts(id) {
+                return this.request(CONFIG.ENDPOINTS.WAREHOUSE_PRODUCTS.replace('{id}', id));
+            },
+
+            adjustInventory(warehouseId, items) {
+                return this.request(CONFIG.ENDPOINTS.INVENTORY_ADJUSTMENTS.replace('{id}', warehouseId), {
+                    method: 'POST', body: { items }
+                });
+            },
+
+            async upsertProducts(warehouseId, items) {
+                return this.request(CONFIG.ENDPOINTS.UPSERT_PRODUCTS.replace('{id}', warehouseId), {
+                    method: 'POST', body: { items }
+                });
+            },
+
+
+            createTransfer(fromId, toId, items) {
+                return this.request(CONFIG.ENDPOINTS.TRANSFERS, {
+                    method: 'POST', body: { from_warehouse_id: fromId, to_warehouse_id: toId, items }
+                });
+            },
+
+            getStockLog(params = {}) {
+                const query = new URLSearchParams(params).toString();
+                return this.request(`${CONFIG.ENDPOINTS.STOCK_LOG}${query ? '?' + query : ''}`);
+            },
+
+            async getWooProducts(ids) {
+                const params = new URLSearchParams({ include: ids.join(','), per_page: 100 });
+                return this.request(`${CONFIG.ENDPOINTS.WC_PRODUCTS}?${params}`);
+            }
+        };
+
+        // ==========================================
+        // UI UTILITIES
+        // ==========================================
+        const UI = {
+            showInlineLoading(message = 'Loading...') {
+                return `<div class="inline-loading"><div class="spinner-sm"></div><p class="mt-2 text-muted">${message}</p></div>`;
+            },
+
+            toast(msg, type = 'info') {
+                const colors = { success: 'bg-success', error: 'bg-danger', warning: 'bg-warning', info: 'bg-info' };
+                const toast = document.createElement('div');
+                toast.className = `toast show ${colors[type]} text-white`;
+                toast.innerHTML = `<div class="toast-body">${msg}</div>`;
+                document.getElementById('toastContainer').appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            },
+
+            render(html) {
+                document.getElementById('contentArea').innerHTML = html;
+            },
+
+            setTitle(title) {
+                document.getElementById('pageTitle').textContent = title;
+            }
+        };
+
+        // ==========================================
+        // PRODUCT CACHE
+        // ==========================================
+        const ProductCache = {
+            products: {},
+            loaded: false,
+
+            async loadAll() {
+                if (this.loaded) return;
+                try {
+                    const allProducts = await API.request(`${CONFIG.ENDPOINTS.WC_PRODUCTS}?per_page=100`);
+                    allProducts.forEach(p => {
+                        this.products[p.id] = {
+                            name: p.name,
+                            image: p.images[0]?.src || 'https://via.placeholder.com/70',
+                            categories: p.categories.map(c => c.name)
+                        };
+                    });
+                    this.loaded = true;
+                    Logger.success('CACHE', `Loaded ${allProducts.length} products`);
+                } catch (error) {
+                    Logger.error('CACHE', 'Failed');
+                }
+            },
+
+            get(id) {
+                return this.products[id] || { name: `Product #${id}`, image: 'https://via.placeholder.com/70', categories: [] };
+            }
+        };
+
+        // ==========================================
+        // INVENTORY (محسّن للسرعة)
+        // ==========================================
+        const Inventory = {
+            currentWarehouse: 1,
+            currentFilter: 'all',
+            currentCategory: 'all',
+            allProducts: [],
+            bulkMode: false,
+            selectedProducts: new Set(),
+
+            async render(warehouseId = 1) {
+                this.currentWarehouse = warehouseId;
+                UI.setTitle('Inventory');
+                UI.render(UI.showInlineLoading('Loading inventory...'));
+
+                try {
+                    await ProductCache.loadAll();
+                    const [whData, prodData] = await Promise.all([
+                        API.getWarehouses('active'),
+                        API.getWarehouseProducts(warehouseId)
+                    ]);
+
+                    const warehouses = whData.data || [];
+                    this.allProducts = prodData.data || [];
+                    this.renderProducts(warehouses);
+                } catch (error) {
+                    UI.render(`<div class="alert alert-danger">${error.message}</div>`);
+                }
+            },
+
+            renderProducts(warehouses) {
+                // Get categories
+                const categoriesSet = new Set();
+                this.allProducts.forEach(p => {
+                    const prod = ProductCache.get(p.product_id);
+                    prod.categories.forEach(cat => categoriesSet.add(cat));
+                });
+                const categories = ['All', ...Array.from(categoriesSet)];
+
+                UI.render(`
+                    <div class="mb-3">
+                        <select class="form-control" onchange="Inventory.render(this.value)">
+                            ${warehouses.map(wh => `
+                                <option value="${wh.id}" ${wh.id == this.currentWarehouse ? 'selected' : ''}>
+                                    ${wh.name}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </div>
+
+                    <!-- Filter Pills -->
+                    <div class="filter-pills" id="filterPills">
+                        <div class="filter-pill ${this.currentFilter === 'all' ? 'active' : ''}" 
+                            data-filter="all"
+                            onclick="Inventory.setFilter('all')">All Products</div>
+                        <div class="filter-pill ${this.currentFilter === 'low' ? 'active' : ''}" 
+                            data-filter="low"
+                            onclick="Inventory.setFilter('low')">Low Stock</div>
+                        <div class="filter-pill ${this.currentFilter === 'out' ? 'active' : ''}" 
+                            data-filter="out"
+                            onclick="Inventory.setFilter('out')">Out of Stock</div>
+                    </div>
+
+
+                    <!-- Category Tabs (Fast Frontend Filtering) -->
+                    <ul class="nav nav-tabs" id="categoryTabs" style="overflow-x: auto; flex-wrap: nowrap;">
+                        ${categories.map(cat => `
+                            <li class="nav-item">
+                                <span class="nav-link ${this.currentCategory === cat.toLowerCase() ? 'active' : ''}" 
+                                    data-category="${cat.toLowerCase()}"
+                                    onclick="Inventory.setCategory('${cat.toLowerCase()}')">
+                                    ${cat}
+                                </span>
+                            </li>
+                        `).join('')}
+                    </ul>
+
+
+                    <!-- Bulk Mode Button -->
+                    <div class="mb-3">
+                        <button class="btn btn-sm ${this.bulkMode ? 'btn-secondary' : 'btn-primary'}" 
+                                onclick="Inventory.toggleBulkMode()">
+                            <i class="bi bi-check-square"></i> 
+                            ${this.bulkMode ? 'Exit Bulk Mode' : 'Bulk Edit Mode'}
+                        </button>
+                    </div>
+
+                    <!-- Products List -->
+                    <div class="card" id="productsContainer">
+                        ${this.allProducts.map(p => this.renderProductCard(p)).join('')}
+                    </div>
+                `);
+
+                // Apply filters instantly
+                this.applyFilters();
+            },
+
+            renderProductCard(product) {
+                const prod = ProductCache.get(product.product_id);
+                const available = product.qty - product.reserved_qty;
+                const lowStock = available <= product.min_qty && available > 0;
+                const outOfStock = available <= 0;
+                const isSelected = this.selectedProducts.has(product.product_id);
+
+                // Data attributes for filtering
+                const categories = prod.categories.join(',').toLowerCase();
+                const stockStatus = outOfStock ? 'out' : lowStock ? 'low' : 'ok';
+
+                return `
+                    <div class="product-card ${this.bulkMode ? 'bulk-mode' : ''}" 
+                         data-product-id="${product.product_id}"
+                         data-categories="${categories}"
+                         data-stock-status="${stockStatus}">
+                        ${this.bulkMode ? `
+                            <input type="checkbox" 
+                                   class="form-check-input product-card-checkbox" 
+                                   ${isSelected ? 'checked' : ''}
+                                   onchange="Inventory.toggleSelect(${product.product_id})">
+                        ` : ''}
+                        <img src="${prod.image}" class="product-card-img">
+                        <div class="product-card-body">
+                            <div class="product-card-title">${prod.name}</div>
+                            <div class="product-card-meta">
+                                <span class="product-badge ${outOfStock ? 'bg-danger' : lowStock ? 'bg-warning text-dark' : 'bg-success'} text-white">
+                                    ${available} Available
+                                </span>
+                                <span class="product-badge bg-secondary text-white">${product.qty} Total</span>
+                                ${product.reserved_qty > 0 ? `
+                                    <span class="product-badge bg-warning text-dark">${product.reserved_qty} Reserved</span>
+                                ` : ''}
+                                ${product.price ? `<span class="product-badge bg-info text-white">$${product.price}</span>` : ''}
+                            </div>
+                            ${this.bulkMode ? `
+                                <div class="product-card-actions">
+                                    <input type="number" 
+                                           class="bulk-input" 
+                                           id="bulk-${product.product_id}" 
+                                           value="0" 
+                                           placeholder="±Qty">
+                                </div>
+                            ` : `
+                                <div class="product-card-actions">
+                                    <button class="btn btn-primary btn-xs" 
+                                            onclick="Inventory.showEditModal(${product.product_id}, ${product.qty}, ${product.reserved_qty}, ${product.price || 0}, ${product.min_qty || 0})">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </button>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                `;
+            },
+
+            // Fast frontend filtering (no API calls)
+            applyFilters() {
+                const cards = document.querySelectorAll('.product-card');
+                
+                cards.forEach(card => {
+                    let show = true;
+
+                    // Filter by category
+                    if (this.currentCategory !== 'all') {
+                        const categories = card.getAttribute('data-categories');
+                        if (!categories.includes(this.currentCategory)) {
+                            show = false;
+                        }
+                    }
+
+                    // Filter by stock status
+                    if (this.currentFilter !== 'all') {
+                        const status = card.getAttribute('data-stock-status');
+                        if (status !== this.currentFilter) {
+                            show = false;
+                        }
+                    }
+
+                    card.classList.toggle('hidden', !show);
+                });
+            },
+
+            setFilter(filter) {
+                this.currentFilter = filter;
+                
+                // Update active state for all filter pills
+                document.querySelectorAll('#filterPills .filter-pill').forEach(pill => {
+                    const pillFilter = pill.getAttribute('data-filter');
+                    pill.classList.toggle('active', pillFilter === filter);
+                });
+                
+                this.applyFilters(); // Instant filtering
+            },
+
+
+            setCategory(cat) {
+                this.currentCategory = cat;
+                
+                // Update active state for all tabs
+                const tabs = document.querySelectorAll('#categoryTabs .nav-link');
+                tabs.forEach(tab => {
+                    const tabCat = tab.getAttribute('data-category');
+                    tab.classList.toggle('active', tabCat === cat);
+                });
+                
+                this.applyFilters(); // Instant filtering
+            },
+
+
+            toggleBulkMode() {
+                this.bulkMode = !this.bulkMode;
+                this.selectedProducts.clear();
+                
+                // Fast toggle without re-render
+                const container = document.getElementById('productsContainer');
+                const cards = container.querySelectorAll('.product-card');
+                
+                cards.forEach(card => {
+                    const productId = parseInt(card.getAttribute('data-product-id'));
+                    const product = this.allProducts.find(p => p.product_id === productId);
+                    
+                    // Replace card content
+                    const prod = ProductCache.get(productId);
+                    const available = product.qty - product.reserved_qty;
+                    const lowStock = available <= product.min_qty && available > 0;
+                    const outOfStock = available <= 0;
+                    
+                    card.className = `product-card ${this.bulkMode ? 'bulk-mode' : ''}`;
+                    card.innerHTML = `
+                        ${this.bulkMode ? `
+                            <input type="checkbox" class="form-check-input product-card-checkbox" 
+                                   onchange="Inventory.toggleSelect(${productId})">
+                        ` : ''}
+                        <img src="${prod.image}" class="product-card-img">
+                        <div class="product-card-body">
+                            <div class="product-card-title">${prod.name}</div>
+                            <div class="product-card-meta">
+                                <span class="product-badge ${outOfStock ? 'bg-danger' : lowStock ? 'bg-warning text-dark' : 'bg-success'} text-white">
+                                    ${available} Available
+                                </span>
+                                <span class="product-badge bg-secondary text-white">${product.qty} Total</span>
+                                ${product.reserved_qty > 0 ? `
+                                    <span class="product-badge bg-warning text-dark">${product.reserved_qty} Reserved</span>
+                                ` : ''}
+                            </div>
+                            ${this.bulkMode ? `
+                                <div class="product-card-actions">
+                                    <input type="number" class="bulk-input" id="bulk-${productId}" value="0" placeholder="±Qty">
+                                </div>
+                            ` : `
+                                <div class="product-card-actions">
+                                    <button class="btn btn-primary btn-xs" 
+                                            onclick="Inventory.showEditModal(${productId}, ${product.qty}, ${product.reserved_qty}, ${product.price || 0}, ${product.min_qty || 0})">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </button>
+                                </div>
+                            `}
+                        </div>
+                    `;
+                });
+
+                this.updateBulkBar();
+            },
+
+            toggleSelect(productId) {
+                if (this.selectedProducts.has(productId)) {
+                    this.selectedProducts.delete(productId);
+                } else {
+                    this.selectedProducts.add(productId);
+                }
+                this.updateBulkBar();
+            },
+
+            updateBulkBar() {
+                const bar = document.getElementById('bulkBar');
+                const count = this.selectedProducts.size;
+                document.getElementById('bulkCount').textContent = count;
+                bar.classList.toggle('active', count > 0);
+            },
+
+            async bulkApply() {
+                if (this.selectedProducts.size === 0) {
+                    UI.toast('No products selected', 'warning');
+                    return;
+                }
+
+                const items = [];
+                this.selectedProducts.forEach(pid => {
+                    const input = document.getElementById(`bulk-${pid}`);
+                    if (input) {
+                        const delta = parseFloat(input.value) || 0;
+                        if (delta !== 0) {
+                            items.push({ product_id: pid, delta_qty: delta });
+                        }
+                    }
+                });
+
+                if (items.length === 0) {
+                    UI.toast('No changes to apply', 'warning');
+                    return;
+                }
+
+                try {
+                    UI.render(UI.showInlineLoading('Updating products...'));
+                    await API.adjustInventory(this.currentWarehouse, items);
+                    UI.toast('Products updated', 'success');
+                    this.selectedProducts.clear();
+                    this.bulkMode = false;
+                    this.render(this.currentWarehouse);
+                } catch (error) {
+                    UI.toast(error.message, 'error');
+                    this.render(this.currentWarehouse);
+                }
+            },
+
+            cancelBulk() {
+                this.selectedProducts.clear();
+                this.updateBulkBar();
+            },
+
+            showEditModal(productId, qty, reserved, price, minQty) {
+                const modal = new bootstrap.Modal(document.getElementById('editModal') || this.createEditModal());
+                document.getElementById('editProductId').value = productId;
+                document.getElementById('editQty').value = qty;
+                document.getElementById('editReserved').value = reserved;
+                document.getElementById('editPrice').value = price;
+                document.getElementById('editMinQty').value = minQty;
+                modal.show();
+            },
+
+            createEditModal() {
+                const html = `
+                    <div class="modal fade" id="editModal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5>Edit Product</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="hidden" id="editProductId">
+                                    <div class="mb-3">
+                                        <label class="form-label">Quantity</label>
+                                        <input type="number" class="form-control" id="editQty" min="0">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Reserved</label>
+                                        <input type="number" class="form-control" id="editReserved" min="0">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Price</label>
+                                        <input type="number" class="form-control" id="editPrice" min="0" step="0.01">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Min Quantity</label>
+                                        <input type="number" class="form-control" id="editMinQty" min="0">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button class="btn btn-primary" onclick="Inventory.saveEdit()">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('modalsContainer').insertAdjacentHTML('beforeend', html);
+                return document.getElementById('editModal');
+            },
+
+            async saveEdit() {
+                const productId = parseInt(document.getElementById('editProductId').value);
+                const newQty = parseFloat(document.getElementById('editQty').value);
+                const newReserved = parseFloat(document.getElementById('editReserved').value);
+                const newPrice = parseFloat(document.getElementById('editPrice').value);
+                const newMinQty = parseFloat(document.getElementById('editMinQty').value);
+
+                const items = [{
+                    product_id: productId,
+                    qty: newQty,
+                    reserved_qty: newReserved,
+                    price: newPrice,
+                    min_qty: newMinQty
+                }];
+
+                UI.render(UI.showInlineLoading('Saving...'));
+                try {
+                    // Use upsertProducts instead of adjustInventory
+                    await API.upsertProducts(this.currentWarehouse, items);
+                    UI.toast('Saved successfully', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+                    this.render(this.currentWarehouse);
+                } catch (error) {
+                    UI.toast(error.message, 'error');
+                    this.render(this.currentWarehouse);
+                }
+            }
+        };
+
+        // ==========================================
+        // STOCK LOG (مع Order ID)
+        // ==========================================
+        const StockLog = {
+            async render() {
+                UI.setTitle('Stock Log');
+                UI.render(UI.showInlineLoading('Loading log...'));
+
+                try {
+                    await ProductCache.loadAll();
+                    const data = await API.getStockLog({ limit: 50 });
+                    const logs = data.data || [];
+
+                    if (logs.length === 0) {
+                        UI.render('<div class="alert alert-info">No log entries</div>');
+                        return;
+                    }
+
+                    UI.render(`<div class="log-timeline">${logs.map(log => this.renderLogEntry(log)).join('')}</div>`);
+                } catch (error) {
+                    UI.render(`<div class="alert alert-danger">${error.message}</div>`);
+                }
+            },
+
+            renderLogEntry(log) {
+                const prod = ProductCache.get(log.product_id);
+                const date = new Date(log.created_at);
+                const changeColor = log.qty_change >= 0 ? 'text-success' : 'text-danger';
+                const actionColors = {
+                    'transfer_in': 'bg-info', 'transfer_out': 'bg-warning',
+                    'manual_increase': 'bg-success', 'manual_decrease': 'bg-danger',
+                    'wc_order_restore': 'bg-info', 'order_placed': 'bg-primary'
+                };
+
+                return `
+                    <div class="log-entry">
+                        <div class="log-header">
+                            <div>
+                                <div class="log-product">${prod.name}</div>
+                                <span class="log-action ${actionColors[log.action_type] || 'bg-secondary'} text-white">
+                                    ${log.action_type}
+                                </span>
+                            </div>
+                            <div class="log-time">${date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                        </div>
+
+                        <div class="log-grid">
+                            <div class="log-item">
+                                <div class="log-item-label">Change</div>
+                                <div class="log-item-value ${changeColor}">${log.qty_change > 0 ? '+' : ''}${log.qty_change}</div>
+                            </div>
+                            <div class="log-item">
+                                <div class="log-item-label">Warehouse</div>
+                                <div class="log-item-value">#${log.warehouse_id}</div>
+                            </div>
+                            <div class="log-item">
+                                <div class="log-item-label">Before → After</div>
+                                <div class="log-item-value">${log.qty_before} → ${log.qty_after}</div>
+                            </div>
+                            <div class="log-item">
+                                <div class="log-item-label">Reserved</div>
+                                <div class="log-item-value">${log.reserved_before} → ${log.reserved_after}</div>
+                            </div>
+                        </div>
+
+                        ${log.order_id ? `
+                            <div class="log-order-link">
+                                <i class="bi bi-cart me-2"></i>
+                                <strong>WooCommerce Order:</strong> 
+                                <a href="${CONFIG.API_BASE_URL}/wp-admin/post.php?post=${log.order_id}&action=edit" target="_blank">
+                                    #${log.order_id} <i class="bi bi-box-arrow-up-right"></i>
+                                </a>
+                            </div>
+                        ` : ''}
+
+                        ${log.notes ? `
+                            <div class="log-notes">
+                                <i class="bi bi-info-circle me-2"></i>${log.notes}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+        };
+
+        // ==========================================
+        // DASHBOARD & OTHERS (same as before)
+        // ==========================================
+        const Dashboard = {
+            async render() {
+                UI.setTitle('Dashboard');
+                UI.render(UI.showInlineLoading('Loading...'));
+
+                try {
+                    const data = await API.getWarehouses('active');
+                    const warehouses = data.data || [];
+
+                    UI.render(`
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="card stat-card bg-primary text-white">
+                                    <i class="bi bi-building"></i>
+                                    <h3>${warehouses.length}</h3>
+                                    <p>Warehouses</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card stat-card bg-success text-white">
+                                    <i class="bi bi-box-seam"></i>
+                                    <h3>~55</h3>
+                                    <p>Products</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                <h6 class="mb-3"><i class="bi bi-building"></i> Warehouses</h6>
+                                ${warehouses.map(wh => `
+                                    <div class="d-flex justify-content-between align-items-center mb-2 p-2" 
+                                         style="background: var(--bg-light); border-radius: 8px; cursor: pointer;"
+                                         onclick="navigateToSection('inventory', ${wh.id})">
+                                        <div>
+                                            <strong>${wh.name}</strong>
+                                            ${wh.is_primary ? '<span class="badge bg-warning text-dark ms-2">Primary</span>' : ''}
+                                        </div>
+                                        <i class="bi bi-chevron-right"></i>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `);
+                } catch (error) {
+                    UI.render(`<div class="alert alert-danger">${error.message}</div>`);
+                }
+            }
+        };
+
+        const Warehouses = {
+            async render() {
+                UI.setTitle('Warehouses');
+                UI.render(UI.showInlineLoading('Loading...'));
+                
+                try {
+                    const data = await API.getWarehouses();
+                    const warehouses = data.data || [];
+
+                    UI.render(`
+                        <div class="card">
+                            <div class="card-body">
+                                ${warehouses.map(wh => `
+                                    <div class="d-flex justify-content-between align-items-center mb-2 p-3" style="background: var(--bg-light); border-radius: 8px;">
+                                        <div>
+                                            <strong>${wh.name}</strong>
+                                            ${wh.is_primary ? '<span class="badge bg-warning text-dark ms-2">Primary</span>' : ''}
+                                            <span class="badge ${wh.status === 'active' ? 'bg-success' : 'bg-secondary'} ms-2">${wh.status}</span>
+                                        </div>
+                                        <button class="btn btn-primary btn-sm" onclick="navigateToSection('inventory', ${wh.id})">
+                                            <i class="bi bi-box-seam"></i> View
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `);
+                } catch (error) {
+                    UI.render(`<div class="alert alert-danger">${error.message}</div>`);
+                }
+            }
+        };
+
+        const Transfers = {
+            async render() {
+                UI.setTitle('Transfers');
+                UI.render(UI.showInlineLoading('Loading...'));
+                
+                try {
+                    await ProductCache.loadAll();
+                    const data = await API.getWarehouses('active');
+                    const warehouses = data.data || [];
+
+                    UI.render(`
+                        <div class="card">
+                            <div class="card-body">
+                                <h6><i class="bi bi-arrow-left-right"></i> Create Transfer</h6>
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label">From</label>
+                                        <select class="form-control" id="fromWh" onchange="Transfers.loadProducts()">
+                                            <option value="">Select...</option>
+                                            ${warehouses.map(w => `<option value="${w.id}">${w.name}</option>`).join('')}
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">To</label>
+                                        <select class="form-control" id="toWh">
+                                            <option value="">Select...</option>
+                                            ${warehouses.map(w => `<option value="${w.id}">${w.name}</option>`).join('')}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="transferProducts"></div>
+                                <button class="btn btn-primary w-100" onclick="Transfers.execute()">
+                                    <i class="bi bi-arrow-left-right"></i> Transfer
+                                </button>
+                            </div>
+                        </div>
+                    `);
+                } catch (error) {
+                    UI.render(`<div class="alert alert-danger">${error.message}</div>`);
+                }
+            },
+
+            async loadProducts() {
+                const whId = document.getElementById('fromWh').value;
+                if (!whId) return;
+
+                try {
+                    const data = await API.getWarehouseProducts(whId);
+                    const products = data.data || [];
+
+                    const html = products.filter(p => p.qty > 0).map(p => {
+                        const prod = ProductCache.get(p.product_id);
+                        return `
+                            <div class="d-flex justify-content-between align-items-center mb-2 p-2" style="background: var(--bg-light); border-radius: 8px;">
+                                <div>
+                                    <strong>${prod.name}</strong>
+                                    <small class="text-muted d-block">Available: ${p.qty}</small>
+                                </div>
+                                <input type="number" class="form-control" style="width: 80px" id="transfer-${p.product_id}" min="0" max="${p.qty}" value="0">
+                            </div>
+                        `;
+                    }).join('');
+
+                    document.getElementById('transferProducts').innerHTML = html || '<p class="text-muted">No products</p>';
+                } catch (error) {
+                    UI.toast(error.message, 'error');
+                }
+            },
+
+            async execute() {
+                const fromId = parseInt(document.getElementById('fromWh').value);
+                const toId = parseInt(document.getElementById('toWh').value);
+
+                if (!fromId || !toId || fromId === toId) {
+                    UI.toast('Invalid warehouses', 'warning');
+                    return;
+                }
+
+                const items = [];
+                document.querySelectorAll('[id^="transfer-"]').forEach(input => {
+                    const qty = parseFloat(input.value);
+                    if (qty > 0) {
+                        const pid = parseInt(input.id.replace('transfer-', ''));
+                        items.push({ product_id: pid, qty });
+                    }
+                });
+
+                if (items.length === 0) {
+                    UI.toast('No items', 'warning');
+                    return;
+                }
+
+                UI.render(UI.showInlineLoading('Transferring...'));
+                try {
+                    await API.createTransfer(fromId, toId, items);
+                    UI.toast('Transfer completed', 'success');
+                    this.render();
+                } catch (error) {
+                    UI.toast(error.message, 'error');
+                    this.render();
+                }
+            }
+        };
+
+        // ==========================================
+        // NAVIGATION
+        // ==========================================
+        function navigateToSection(section, param = null) {
+            document.querySelectorAll('.nav-item-bottom').forEach(item => {
+                item.classList.toggle('active', item.getAttribute('data-section') === section);
+            });
+
+            AppState.currentSection = section;
+
+            switch(section) {
+                case 'dashboard': Dashboard.render(); break;
+                case 'warehouses': Warehouses.render(); break;
+                case 'inventory': Inventory.render(param || 1); break;
+                case 'transfers': Transfers.render(); break;
+                case 'stock-log': StockLog.render(); break;
+            }
+        }
+
+        // ==========================================
+        // INIT
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', function() {
+            AppState.init();
+
+            document.getElementById('loginForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                try {
+                    const data = await API.login(
+                        document.getElementById('phone').value,
+                        document.getElementById('password').value
+                    );
+
+                    if (data.success && data.data.token) {
+                        Auth.save(data.data.token, data.data.employee);
+                        AppState.showApp();
+                        UI.toast('Welcome!', 'success');
+                    } else {
+                        throw new Error('Login failed');
+                    }
+                } catch (error) {
+                    UI.toast(error.message, 'error');
+                }
+            });
+
+            document.querySelectorAll('.nav-item-bottom').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    navigateToSection(this.getAttribute('data-section'));
+                });
+            });
+
+            document.getElementById('refreshBtn').addEventListener('click', () => {
+                navigateToSection(AppState.currentSection);
+            });
+
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                if (confirm('Logout?')) {
+                    Auth.clear();
+                    location.reload();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
