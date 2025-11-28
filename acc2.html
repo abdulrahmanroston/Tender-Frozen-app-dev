@@ -1,0 +1,4157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>FFA Accounting System</title>
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+
+    <style>
+      /* ============================================
+            CSS VARIABLES & RESET
+            ============================================ */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      :root {
+        /* Colors */
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --primary-light: #3b82f6;
+        --success: #10b981;
+        --success-dark: #059669;
+        --warning: #f59e0b;
+        --warning-dark: #d97706;
+        --danger: #ef4444;
+        --danger-dark: #dc2626;
+        --info: #3b82f6;
+        --secondary: #64748b;
+
+        /* Neutrals */
+        --gray-50: #f8fafc;
+        --gray-100: #f1f5f9;
+        --gray-200: #e2e8f0;
+        --gray-300: #cbd5e1;
+        --gray-400: #94a3b8;
+        --gray-500: #64748b;
+        --gray-600: #475569;
+        --gray-700: #334155;
+        --gray-800: #1e293b;
+        --gray-900: #0f172a;
+
+        /* Background */
+        --bg-primary: #f8fafc;
+        --bg-secondary: #ffffff;
+        --bg-tertiary: #f1f5f9;
+
+        /* Text */
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+        --text-tertiary: #94a3b8;
+
+        /* Border */
+        --border-color: #e2e8f0;
+
+        /* Shadow */
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+
+        /* Spacing (Mobile-first) */
+        --space-1: 0.25rem;
+        --space-2: 0.5rem;
+        --space-3: 0.75rem;
+        --space-4: 1rem;
+        --space-5: 1.25rem;
+        --space-6: 1.5rem;
+        --space-8: 2rem;
+
+        /* Border Radius */
+        --radius-sm: 0.375rem;
+        --radius: 0.5rem;
+        --radius-lg: 0.75rem;
+        --radius-xl: 1rem;
+        --radius-full: 9999px;
+
+        /* Transitions */
+        --transition: 200ms ease;
+
+        /* Z-index */
+        --z-modal: 2000;
+        --z-toast: 3000;
+        --z-sticky: 1100;
+
+        /* Mobile-first Sidebar */
+        --sidebar-width: 100%;
+        --header-height: 56px;
+      }
+
+      /* Desktop adjustments */
+      @media (min-width: 768px) {
+        :root {
+          --sidebar-width: 260px;
+          --header-height: 64px;
+        }
+      }
+
+      /* ============================================
+            BASE STYLES (Mobile-optimized)
+            ============================================ */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--text-primary);
+        background: var(--bg-primary);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+        touch-action: manipulation;
+      }
+
+      /* ============================================
+            UTILITY CLASSES
+            ============================================ */
+      .hidden {
+        display: none !important;
+      }
+      .flex {
+        display: flex;
+      }
+      .flex-col {
+        flex-direction: column;
+      }
+      .items-center {
+        align-items: center;
+      }
+      .justify-between {
+        justify-content: space-between;
+      }
+      .justify-center {
+        justify-content: center;
+      }
+      .gap-2 {
+        gap: var(--space-2);
+      }
+      .gap-3 {
+        gap: var(--space-3);
+      }
+      .gap-4 {
+        gap: var(--space-4);
+      }
+      .text-center {
+        text-align: center;
+      }
+      .text-right {
+        text-align: right;
+      }
+      .w-full {
+        width: 100%;
+      }
+
+      /* ============================================
+            TYPOGRAPHY (Mobile-optimized)
+            ============================================ */
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-weight: 600;
+        line-height: 1.2;
+        color: var(--text-primary);
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+      h2 {
+        font-size: 1.25rem;
+      }
+      h3 {
+        font-size: 1.125rem;
+      }
+      h4,
+      h5,
+      h6 {
+        font-size: 1rem;
+      }
+
+      @media (min-width: 768px) {
+        h1 {
+          font-size: 2rem;
+        }
+        h2 {
+          font-size: 1.5rem;
+        }
+        h3 {
+          font-size: 1.25rem;
+        }
+      }
+
+      p {
+        margin-bottom: var(--space-4);
+      }
+      small {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+      }
+
+      /* ============================================
+            BUTTONS (Touch-friendly 44px min)
+            ============================================ */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+        padding: 0.75rem 1.25rem;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        border: none;
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: var(--transition);
+        text-decoration: none;
+        white-space: nowrap;
+        user-select: none;
+        min-height: 44px;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .btn:active {
+        transform: scale(0.98);
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+      }
+      .btn-success {
+        background: var(--success);
+        color: white;
+      }
+      .btn-warning {
+        background: var(--warning);
+        color: white;
+      }
+      .btn-danger {
+        background: var(--danger);
+        color: white;
+      }
+      .btn-secondary {
+        background: var(--gray-200);
+        color: var(--text-primary);
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        background: var(--primary-dark);
+      }
+      .btn-success:hover:not(:disabled) {
+        background: var(--success-dark);
+      }
+      .btn-warning:hover:not(:disabled) {
+        background: var(--warning-dark);
+      }
+      .btn-danger:hover:not(:disabled) {
+        background: var(--danger-dark);
+      }
+      .btn-secondary:hover:not(:disabled) {
+        background: var(--gray-300);
+      }
+
+      .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        min-height: 38px;
+      }
+
+      .btn-lg {
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+      }
+
+      .btn-icon {
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border-radius: var(--radius-full);
+      }
+      
+      .btn-outline-primary {
+        background: transparent;
+        border: 1px solid var(--primary);
+        color: var(--primary);
+      }
+      .btn-outline-primary:hover:not(:disabled) {
+        background: var(--primary);
+        color: white;
+      }
+      .btn-outline-primary.active {
+        background: var(--primary);
+        color: white;
+      }
+      
+      .btn-outline-danger {
+        background: transparent;
+        border: 1px solid var(--danger);
+        color: var(--danger);
+      }
+
+      .btn-group {
+        display: inline-flex;
+        gap: 4px;
+      }
+
+      /* ============================================
+            FORM ELEMENTS (Mobile-optimized)
+            ============================================ */
+      .form-group {
+        margin-bottom: var(--space-4);
+      }
+
+      .form-label {
+        display: block;
+        margin-bottom: var(--space-2);
+        font-size: 0.9375rem;
+        font-weight: 500;
+      }
+
+      .form-label.required::after {
+        content: "*";
+        color: var(--danger);
+        margin-left: var(--space-1);
+      }
+
+      .form-input,
+      .form-select,
+      .form-textarea {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: var(--text-primary);
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius);
+        transition: var(--transition);
+        min-height: 44px;
+      }
+
+      .form-input:focus,
+      .form-select:focus,
+      .form-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+
+      .form-input::placeholder {
+        color: var(--text-tertiary);
+      }
+
+      .form-textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+      }
+
+      @media (min-width: 768px) {
+        .form-row {
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+      }
+
+      /* ============================================
+            CARDS
+            ============================================ */
+      .card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+      }
+
+      .card-header {
+        padding: var(--space-4);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .card-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+      }
+
+      .card-body {
+        padding: var(--space-4);
+      }
+
+      @media (min-width: 768px) {
+        .card-header,
+        .card-body {
+          padding: var(--space-6);
+        }
+      }
+
+      /* ============================================
+            BADGES
+            ============================================ */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-1);
+        padding: 0.25rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border-radius: var(--radius-full);
+        white-space: nowrap;
+      }
+
+      .badge-primary {
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--primary);
+      }
+      .badge-success {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+      }
+      .badge-warning {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+      }
+      .badge-danger {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+      }
+      .badge-secondary {
+        background: var(--gray-100);
+        color: var(--gray-700);
+      }
+
+      /* ============================================
+            TABLES (Mobile-responsive)
+            ============================================ */
+      .table-container {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 600px;
+      }
+
+      .table th,
+      .table td {
+        padding: var(--space-3);
+        font-size: 0.875rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .table th {
+        background: var(--bg-tertiary);
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+        font-size: 0.75rem;
+      }
+
+      .table tbody tr {
+        transition: background var(--transition);
+      }
+
+      .table tbody tr:hover {
+        background: var(--bg-tertiary);
+      }
+
+      /* ============================================
+            LOADING SPINNER
+            ============================================ */
+      .spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+
+      .spinner-primary {
+        border-color: rgba(37, 99, 235, 0.2);
+        border-top-color: var(--primary);
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* ============================================
+            TOAST NOTIFICATIONS (Mobile-optimized)
+            ============================================ */
+      .toast-container {
+        position: fixed;
+        bottom: var(--space-4);
+        left: var(--space-4);
+        right: var(--space-4);
+        z-index: var(--z-toast);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+      }
+
+      @media (min-width: 768px) {
+        .toast-container {
+          left: auto;
+          right: var(--space-6);
+          max-width: 400px;
+        }
+      }
+
+      .toast {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--space-3);
+        padding: var(--space-4);
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        animation: slideInMobile 0.3s ease-out;
+      }
+
+      @keyframes slideInMobile {
+        from {
+          transform: translateY(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @media (min-width: 768px) {
+        .toast {
+          animation: slideInDesktop 0.3s ease-out;
+        }
+
+        @keyframes slideInDesktop {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+      }
+
+      .toast-icon {
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+      }
+
+      .toast-success .toast-icon {
+        color: var(--success);
+      }
+      .toast-error .toast-icon {
+        color: var(--danger);
+      }
+      .toast-warning .toast-icon {
+        color: var(--warning);
+      }
+      .toast-info .toast-icon {
+        color: var(--info);
+      }
+
+      .toast-content {
+        flex: 1;
+      }
+      .toast-message {
+        font-size: 0.875rem;
+      }
+
+      .toast-close {
+        flex-shrink: 0;
+        background: none;
+        border: none;
+        color: var(--text-tertiary);
+        cursor: pointer;
+        padding: 0;
+        min-width: 24px;
+        min-height: 24px;
+      }
+
+      /* ============================================
+            MODAL (Mobile-optimized)
+            ============================================ */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: var(--z-modal);
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        animation: fadeIn 0.2s;
+      }
+
+      @media (min-width: 768px) {
+        .modal-overlay {
+          align-items: center;
+          padding: var(--space-4);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .modal {
+        background: var(--bg-secondary);
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        width: 100%;
+        max-height: 90vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        animation: slideUpModal 0.3s ease-out;
+      }
+
+      @keyframes slideUpModal {
+        from {
+          transform: translateY(100%);
+        }
+        to {
+          transform: translateY(0);
+        }
+      }
+
+      @media (min-width: 768px) {
+        .modal {
+          border-radius: var(--radius-xl);
+          max-width: 600px;
+        }
+      }
+
+      .modal-header {
+        padding: var(--space-4);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .modal-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+      }
+
+      .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--text-tertiary);
+        cursor: pointer;
+        padding: 0;
+        min-width: 32px;
+        min-height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius);
+      }
+
+      .modal-body {
+        padding: var(--space-4);
+        overflow-y: auto;
+        flex: 1;
+      }
+
+      .modal-footer {
+        padding: var(--space-4);
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        gap: var(--space-3);
+        flex-direction: column;
+      }
+
+      @media (min-width: 768px) {
+        .modal-header,
+        .modal-body,
+        .modal-footer {
+          padding: var(--space-6);
+        }
+
+        .modal-footer {
+          flex-direction: row;
+          justify-content: flex-end;
+        }
+      }
+
+      /* ============================================
+            LOGIN PAGE (Mobile-optimized)
+            ============================================ */
+      .login-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--primary-dark) 100%
+        );
+        padding: var(--space-4);
+      }
+
+      .login-card {
+        width: 100%;
+        max-width: 420px;
+        padding: var(--space-6);
+      }
+
+      .login-header {
+        text-align: center;
+        margin-bottom: var(--space-6);
+      }
+
+      .login-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto var(--space-4);
+        background: var(--primary);
+        color: white;
+        border-radius: var(--radius-xl);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+      }
+
+      @media (min-width: 768px) {
+        .login-card {
+          padding: var(--space-8);
+        }
+
+        .login-icon {
+          width: 80px;
+          height: 80px;
+          font-size: 2.5rem;
+        }
+      }
+
+      /* ============================================
+            DASHBOARD LAYOUT (Mobile-first)
+            ============================================ */
+      .dashboard-layout {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      @media (min-width: 768px) {
+        .dashboard-layout {
+          flex-direction: row;
+        }
+      }
+
+      /* Sidebar - Bottom sheet on mobile */
+      .sidebar {
+        width: 100%;
+        background: var(--bg-secondary);
+        border-top: 1px solid var(--border-color);
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: var(--z-sticky);
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+        max-height: 80vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .sidebar.show {
+        transform: translateY(0);
+      }
+
+      @media (min-width: 768px) {
+        .sidebar {
+          width: var(--sidebar-width);
+          height: 100vh;
+          position: fixed;
+          top: 0;
+          left: 0;
+          bottom: auto;
+          border-right: 1px solid var(--border-color);
+          border-top: none;
+          transform: translateX(0);
+          max-height: none;
+        }
+      }
+
+      .sidebar-header {
+        padding: var(--space-4);
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .sidebar-logo {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      .sidebar-nav {
+        padding: var(--space-3) 0;
+      }
+
+      .nav-item {
+        margin: var(--space-1) var(--space-3);
+      }
+
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        padding: var(--space-3) var(--space-4);
+        color: var(--text-secondary);
+        text-decoration: none;
+        border-radius: var(--radius);
+        transition: var(--transition);
+        font-weight: 500;
+        min-height: 44px;
+      }
+
+      .nav-link:hover {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+      }
+
+      .nav-link.active {
+        background: var(--primary);
+        color: white;
+      }
+
+      .nav-link i {
+        width: 20px;
+        text-align: center;
+      }
+
+      .sidebar-footer {
+        padding: var(--space-4);
+        border-top: 1px solid var(--border-color);
+      }
+
+      /* Main Content */
+      .main-content {
+        flex: 1;
+        padding-bottom: 60px;
+      }
+
+      @media (min-width: 768px) {
+        .main-content {
+          margin-left: var(--sidebar-width);
+          padding-bottom: 0;
+        }
+      }
+
+      .header {
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-color);
+        padding: var(--space-3) var(--space-4);
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        height: var(--header-height);
+        position: sticky;
+        top: 0;
+        z-index: calc(var(--z-sticky) - 1);
+      }
+
+      .header-title {
+        flex: 1;
+        font-size: 1.125rem;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      @media (min-width: 768px) {
+        .header {
+          padding: var(--space-4) var(--space-6);
+        }
+
+        .header-title {
+          font-size: 1.5rem;
+        }
+      }
+
+      .mobile-menu-toggle {
+        display: flex;
+      }
+
+      @media (min-width: 768px) {
+        .mobile-menu-toggle {
+          display: none;
+        }
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        font-size: 0.875rem;
+      }
+
+      .user-info i {
+        font-size: 1.5rem;
+      }
+
+      .user-info span:not(.badge) {
+        display: none;
+      }
+
+      @media (min-width: 768px) {
+        .user-info span:not(.badge) {
+          display: inline;
+        }
+      }
+
+      .content {
+        padding: var(--space-4);
+        background: var(--bg-primary);
+      }
+
+      @media (min-width: 768px) {
+        .content {
+          padding: var(--space-6);
+        }
+      }
+
+      /* ============================================
+            DASHBOARD COMPONENTS (Mobile-optimized)
+            ============================================ */
+      .section-header {
+        margin-bottom: var(--space-4);
+        padding-bottom: var(--space-3);
+        border-bottom: 2px solid var(--border-color);
+      }
+
+      .section-header h2 {
+        font-size: 1.25rem;
+      }
+
+      @media (min-width: 768px) {
+        .section-header {
+          margin-bottom: var(--space-6);
+        }
+
+        .section-header h2 {
+          font-size: 1.5rem;
+        }
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+        margin-bottom: var(--space-6);
+      }
+
+      @media (min-width: 640px) {
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .stats-grid {
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: var(--space-6);
+          margin-bottom: var(--space-8);
+        }
+      }
+
+      .stat-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+      }
+
+      @media (min-width: 768px) {
+        .stat-card {
+          padding: var(--space-6);
+        }
+
+        .stat-card:hover {
+          transform: translateY(-2px);
+          box-shadow: var(--shadow-md);
+        }
+      }
+
+      .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--space-2);
+      }
+
+      .stat-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-lg);
+        margin-bottom: var(--space-3);
+        font-size: 1.25rem;
+      }
+
+      @media (min-width: 768px) {
+        .stat-icon {
+          width: 48px;
+          height: 48px;
+          font-size: 1.5rem;
+          margin-bottom: var(--space-4);
+        }
+      }
+
+      .stat-icon.stat-primary {
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--primary);
+      }
+
+      .stat-icon.stat-success {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+      }
+
+      .stat-icon.stat-info {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--info);
+      }
+
+      .stat-icon.stat-warning {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+      }
+
+      .stat-icon.stat-danger {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+      }
+
+      .stat-label {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: var(--space-2) 0;
+      }
+
+      @media (min-width: 768px) {
+        .stat-value {
+          font-size: 1.875rem;
+        }
+      }
+
+      .stat-value.stat-primary {
+        color: var(--primary);
+      }
+      .stat-value.stat-success {
+        color: var(--success);
+      }
+      .stat-value.stat-danger {
+        color: var(--danger);
+      }
+      .stat-value.stat-secondary {
+        color: var(--secondary);
+      }
+
+      .stat-footer {
+        display: flex;
+        gap: var(--space-2);
+        flex-wrap: wrap;
+      }
+
+      /* Expenses Breakdown */
+      .expenses-breakdown {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        margin-bottom: var(--space-6);
+      }
+
+      @media (min-width: 768px) {
+        .expenses-breakdown {
+          margin-bottom: var(--space-8);
+        }
+      }
+
+      .expenses-tabs {
+        display: flex;
+        border-bottom: 1px solid var(--border-color);
+        background: var(--bg-tertiary);
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .tab-btn {
+        flex: 1;
+        min-width: 100px;
+        padding: var(--space-3) var(--space-4);
+        background: none;
+        border: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: var(--transition);
+        border-bottom: 2px solid transparent;
+        white-space: nowrap;
+      }
+
+      .tab-btn:hover {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+      }
+
+      .tab-btn.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+        background: var(--bg-secondary);
+      }
+
+      .expenses-content {
+        position: relative;
+      }
+
+      .tab-content {
+        display: none;
+        padding: var(--space-4);
+      }
+
+      .tab-content.active {
+        display: block;
+        animation: contentFadeIn 0.2s ease-out;
+      }
+
+      @keyframes contentFadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @media (min-width: 768px) {
+        .tab-content {
+          padding: var(--space-6);
+        }
+      }
+
+      .expenses-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+      }
+
+      .expense-item {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+      }
+
+      .expense-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+      }
+
+      .expense-category {
+        font-weight: 500;
+        color: var(--text-primary);
+      }
+
+      .expense-amount {
+        font-weight: 600;
+        color: var(--primary);
+      }
+
+      .expense-bar {
+        height: 8px;
+        background: var(--bg-tertiary);
+        border-radius: var(--radius-full);
+        overflow: hidden;
+      }
+
+      .expense-bar-fill {
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--primary),
+          var(--primary-light)
+        );
+        transition: width 0.5s ease-out;
+      }
+
+      .expense-percentage {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        text-align: right;
+      }
+
+      .expenses-total {
+        margin-top: var(--space-4);
+        padding-top: var(--space-4);
+        border-top: 1px solid var(--border-color);
+        text-align: right;
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      @media (min-width: 768px) {
+        .expenses-total {
+          margin-top: var(--space-6);
+          font-size: 1.125rem;
+        }
+      }
+
+      /* Loading State */
+      .dashboard-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 300px;
+        font-size: 2.5rem;
+        color: var(--primary);
+      }
+
+      @media (min-width: 768px) {
+        .dashboard-loading {
+          min-height: 400px;
+          font-size: 3rem;
+        }
+      }
+
+      /* ============================================
+            PROGRESSIVE LOADING STATES
+            ============================================ */
+      .skeleton {
+        background: linear-gradient(
+          90deg,
+          var(--bg-tertiary) 0%,
+          var(--gray-200) 50%,
+          var(--bg-tertiary) 100%
+        );
+        background-size: 200% 100%;
+        animation: skeleton 1.5s ease-in-out infinite;
+        border-radius: var(--radius);
+      }
+
+      @keyframes skeleton {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+
+      .skeleton-text {
+        height: 1rem;
+        margin-bottom: var(--space-2);
+      }
+
+      .skeleton-card {
+        height: 120px;
+      }
+
+      /* ============================================
+            SAFE AREA INSETS (iOS notch support)
+            ============================================ */
+      @supports (padding: max(0px)) {
+        .header {
+          padding-left: max(var(--space-4), env(safe-area-inset-left));
+          padding-right: max(var(--space-4), env(safe-area-inset-right));
+        }
+
+        .content {
+          padding-left: max(var(--space-4), env(safe-area-inset-left));
+          padding-right: max(var(--space-4), env(safe-area-inset-right));
+        }
+
+        .sidebar {
+          padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
+        }
+
+        .main-content {
+          padding-bottom: max(60px, env(safe-area-inset-bottom));
+        }
+
+        @media (min-width: 768px) {
+          .main-content {
+            padding-bottom: 0;
+          }
+        }
+      }
+
+      /* Progressive Loading Animation */
+      .progressive-fade-in {
+        animation: fadeInUp 0.4s ease-out;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: var(--z-modal);
+        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+      }
+      .modal-backdrop.hidden {
+        display: none !important;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: var(--radius-lg);
+        width: 90%;
+        max-width: 480px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .expea-header-btns {
+        display: flex;
+        justify-content: center;
+      }
+
+      /* Generic stats card wrapper */
+      .stats-wrapper {
+        margin-bottom: 1.5rem;
+      }
+
+      /* Card adjustments for stats */
+      .stats-card {
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+        border: 1px solid rgba(148, 163, 184, 0.3);
+      }
+
+      /* Stats row spacing */
+      .stats-row {
+        row-gap: 1rem;
+      }
+
+      /* Single stat column */
+      .stats-col {
+        padding: 0.5rem 0.75rem;
+      }
+
+      /* Label style */
+      .stats-label {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-secondary, #6b7280);
+        margin-bottom: 0.25rem;
+      }
+
+      /* Value style */
+      .stats-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary, #111827);
+      }
+
+      /* Optional subtle divider between columns on desktop */
+      @media (min-width: 768px) {
+        .stats-col + .stats-col {
+          border-left: 1px solid rgba(148, 163, 184, 0.3);
+        }
+      }
+
+      /* Mobile responsiveness: 2 columns per row */
+      @media (max-width: 767px) {
+        .stats-row {
+          display: flex;
+          flex-wrap: wrap;
+        }
+
+        .stats-col {
+          flex: 0 0 50%;
+          max-width: 50%;
+          padding: 0.5rem 0.5rem;
+          border-left: none !important;
+        }
+
+        .stats-value {
+          font-size: 1rem;
+        }
+      }
+      
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -0.5rem;
+      }
+      .col {
+        flex: 1;
+        padding: 0 0.5rem;
+        min-width: 100px;
+      }
+      .mb-0 { margin-bottom: 0; }
+      .mb-3 { margin-bottom: 1rem; }
+      .h5 { font-size: 1.25rem; font-weight: 600; }
+      .small { font-size: 0.875rem; }
+      .text-muted { color: var(--text-secondary); }
+
+    </style>
+  </head>
+  <body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div id="app">
+      <!-- ============================================
+            LOGIN PAGE
+        ============================================ -->
+      <div id="loginPage" class="login-page">
+        <div class="login-container">
+          <div class="login-card card">
+            <div class="login-header">
+              <div class="login-icon">
+                <i class="fas fa-calculator"></i>
+              </div>
+              <h1 class="login-title">FFA Accounting</h1>
+              <p class="login-subtitle">Sign in to your account</p>
+            </div>
+
+            <form id="loginForm" class="login-form">
+              <div class="form-group">
+                <label class="form-label required" for="loginPhone"
+                  >Phone Number</label
+                >
+                <input
+                  type="tel"
+                  id="loginPhone"
+                  class="form-input"
+                  placeholder="Enter your phone number"
+                  autocomplete="tel"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label required" for="loginPassword"
+                  >Password</label
+                >
+                <input
+                  type="password"
+                  id="loginPassword"
+                  class="form-input"
+                  placeholder="Enter your password"
+                  autocomplete="current-password"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                class="btn btn-primary btn-lg w-full"
+                id="loginButton"
+              >
+                <span id="loginButtonText">Sign In</span>
+                <span id="loginButtonSpinner" class="spinner hidden"></span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================
+            DASHBOARD (Hidden initially)
+        ============================================ -->
+      <div id="dashboardPage" class="hidden">
+        <div class="dashboard-layout">
+          <!-- Sidebar -->
+          <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+              <div class="sidebar-logo">
+                <i class="fas fa-calculator"></i>
+                <span>FFA Accounting</span>
+              </div>
+            </div>
+
+            <nav class="sidebar-nav" id="sidebarNav">
+              <!-- Navigation will be generated by JavaScript -->
+            </nav>
+
+            <div class="sidebar-footer">
+              <button class="btn btn-secondary btn-sm w-full" id="logoutButton">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+              </button>
+            </div>
+          </aside>
+
+          <!-- Main Content -->
+          <div class="main-content">
+            <header class="header">
+              <button
+                class="btn btn-icon btn-secondary mobile-menu-toggle"
+                id="mobileMenuToggle"
+              >
+                <i class="fas fa-bars"></i>
+              </button>
+
+              <h1 class="header-title" id="pageTitle">Dashboard</h1>
+
+              <div class="header-actions">
+                <div class="user-info">
+                  <i class="fas fa-user-circle"></i>
+                  <span id="userName">Admin</span>
+                  <span class="badge badge-primary" id="userRole">Admin</span>
+                </div>
+              </div>
+            </header>
+
+            <main class="content" id="mainContent">
+              <!-- Content sections will be generated by JavaScript -->
+            </main>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expense Modal -->
+    <div id="expenseModal" class="modal-backdrop hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="expenseModalTitle">Add Expense</h3>
+          <button id="expenseModalClose" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="expenseForm">
+            <div class="form-group">
+              <label for="expenseAmount">Amount</label>
+              <input
+                id="expenseAmount"
+                name="amount"
+                type="number"
+                step="0.01"
+                class="form-input"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="expenseCategory">Category</label>
+              <select
+                id="expenseCategory"
+                name="category_id"
+                class="form-select"
+                required
+              >
+                <option value="">Select category</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="expenseType">Type</label>
+              <select id="expenseType" name="type" class="form-select" required>
+                <option value="variable">Variable</option>
+                <option value="fixed">Fixed</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="expenseVault">Vault</label>
+              <select
+                id="expenseVault"
+                name="vault_id"
+                class="form-select"
+                required
+              >
+                <option value="">Select vault</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="expenseDate">Date</label>
+              <input
+                id="expenseDate"
+                name="date"
+                type="date"
+                class="form-input"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="expenseDescription">Description</label>
+              <textarea
+                id="expenseDescription"
+                name="description"
+                class="form-textarea"
+                rows="3"
+              ></textarea>
+            </div>
+            <input type="hidden" id="expenseEmployee" name="employee_id" />
+            <div class="modal-footer">
+              <button
+                type="button"
+                id="expenseCancelBtn"
+                class="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Save Expense
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vault Modal -->
+    <div id="vaultModal" class="modal-backdrop hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="vaultModalTitle">Add Vault</h3>
+          <button id="vaultModalClose" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="vaultForm">
+            <div class="form-group">
+              <label for="vaultName">Vault Name</label>
+              <input
+                id="vaultName"
+                name="name"
+                type="text"
+                class="form-input"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="vaultPaymentMethod">Payment Method</label>
+              <select
+                id="vaultPaymentMethod"
+                name="payment_method"
+                class="form-select"
+                required
+              >
+                <option value="cash">Cash</option>
+                <option value="bank">Bank</option>
+                <option value="online">Online</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="vaultBalance">Initial Balance</label>
+              <input
+                id="vaultBalance"
+                name="balance"
+                type="number"
+                step="0.01"
+                class="form-input"
+                value="0"
+              />
+            </div>
+            <div class="form-group">
+              <label for="vaultCommission">Commission Rate (%)</label>
+              <input
+                id="vaultCommission"
+                name="commission_rate"
+                type="number"
+                step="0.01"
+                class="form-input"
+                value="0"
+              />
+            </div>
+            <div class="form-group">
+              <label for="vaultDefaultWarehouse">Default Warehouse</label>
+              <input
+                id="vaultDefaultWarehouse"
+                name="default_warehouse"
+                type="text"
+                class="form-input"
+                placeholder="Main warehouse"
+              />
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  id="vaultIsDefault"
+                  name="is_default"
+                />
+                Set as default vault
+              </label>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                id="vaultCancelBtn"
+                class="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Save Vault
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transfer Money Modal -->
+    <div id="transferModal" class="modal-backdrop hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="transferModalTitle">Transfer Money</h3>
+          <button id="transferModalClose" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="transferForm">
+            <div class="form-group">
+              <label for="fromVault">From Vault</label>
+              <select
+                id="fromVault"
+                name="from_vault_id"
+                class="form-select"
+                required
+              >
+                <option value="">Select vault</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="toVault">To Vault</label>
+              <select
+                id="toVault"
+                name="to_vault_id"
+                class="form-select"
+                required
+              >
+                <option value="">Select vault</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="transferAmount">Amount</label>
+              <input
+                id="transferAmount"
+                name="amount"
+                type="number"
+                step="0.01"
+                class="form-input"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="transferNote">Note (optional)</label>
+              <textarea
+                id="transferNote"
+                name="note"
+                class="form-textarea"
+                rows="3"
+              ></textarea>
+            </div>
+            <input type="hidden" id="transferEmployee" name="employee_id" />
+            <div class="modal-footer">
+              <button
+                type="button"
+                id="transferCancelBtn"
+                class="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Transfer
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Funds Modal -->
+    <div id="addFundsModal" class="modal-backdrop hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="addFundsModalTitle">Add Funds to Vault</h3>
+          <button id="addFundsModalClose" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="addFundsForm">
+            <div class="form-group">
+              <label>Vault</label>
+              <input
+                id="addFundsVaultName"
+                type="text"
+                class="form-input"
+                readonly
+              />
+            </div>
+            <div class="form-group">
+              <label for="addFundsAmount">Amount</label>
+              <input
+                id="addFundsAmount"
+                name="amount"
+                type="number"
+                step="0.01"
+                class="form-input"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="addFundsNote">Note</label>
+              <textarea
+                id="addFundsNote"
+                name="note"
+                class="form-textarea"
+                rows="3"
+                required
+              ></textarea>
+            </div>
+            <input type="hidden" id="addFundsVaultId" name="vault_id" />
+            <input type="hidden" id="addFundsEmployeeId" name="employee_id" />
+            <div class="modal-footer">
+              <button
+                type="button"
+                id="addFundsCancelBtn"
+                class="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Add Funds
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payroll Request Modal -->
+    <div id="payrollRequestModal" class="modal-backdrop hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="payrollRequestModalTitle">New Payroll Request</h3>
+          <button id="payrollRequestModalClose" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="payrollRequestForm">
+            <div class="form-group">
+              <label for="requestEmployee">Employee</label>
+              <select
+                id="requestEmployee"
+                name="employee_id"
+                class="form-select"
+                required
+              >
+                <option value="">Select employee</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="requestType">Type</label>
+              <select
+                id="requestType"
+                name="type"
+                class="form-select"
+                required
+              >
+                <option value="advance">Advance</option>
+                <option value="bonus">Bonus</option>
+                <option value="deduction">Deduction</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="requestAmount">Amount</label>
+              <input
+                id="requestAmount"
+                name="amount"
+                type="number"
+                step="0.01"
+                class="form-input"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="requestMonth">Month</label>
+              <input
+                id="requestMonth"
+                name="month"
+                type="month"
+                class="form-input"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="requestReason">Reason</label>
+              <textarea
+                id="requestReason"
+                name="reason"
+                class="form-textarea"
+                rows="3"
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  id="requestApproveNow"
+                  name="approve_now"
+                  checked
+                />
+                Approve and pay immediately
+              </label>
+            </div>
+            <div class="form-group" id="requestVaultGroup">
+              <label for="requestVault">Vault (for immediate payment)</label>
+              <select
+                id="requestVault"
+                name="vault_id"
+                class="form-select"
+              >
+                <option value="">Select vault</option>
+              </select>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                id="payrollRequestCancelBtn"
+                class="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Submit Request
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHRMS Login Modal -->
+    <div id="shrmsLoginModal" class="modal-backdrop hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>HR System Login</h3>
+          <button id="shrmsLoginModalClose" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="shrmsLoginForm">
+            <div class="form-group">
+              <label for="shrmsPhone">Phone</label>
+              <input
+                id="shrmsPhone"
+                name="phone"
+                type="text"
+                class="form-input"
+                readonly
+              />
+            </div>
+            <div class="form-group">
+              <label for="shrmsPassword">Password</label>
+              <input
+                id="shrmsPassword"
+                name="password"
+                type="password"
+                class="form-input"
+                required
+              />
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                id="shrmsLoginCancelBtn"
+                class="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Login
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      "use strict";
+
+      // ============================================
+      // CONFIGURATION
+      // ============================================
+      const CONFIG = {
+        API_BASE: "https://darkviolet-antelope-523488.hostingersite.com/wp-json/ffa/v1",
+        SHRMS_API_BASE: "https://darkviolet-antelope-523488.hostingersite.com/wp-json/shrms/v1",
+        VERSION: "1.0.0",
+        DEBUG_MODE: true,
+        STORAGE_PREFIX: "ffa_",
+        CACHE_TTL: {
+          vaults: 5 * 1000,
+          categories: 10 * 60 * 1000,
+          employees: 5 * 60 * 1000,
+          dashboard: 1 * 60 * 1000,
+          sections: 3 * 60 * 1000,
+        },
+        AUTO_REFRESH: {
+          dashboard: 30 * 1000,
+          enabled: true,
+        },
+        API_TIMEOUT: 10000,
+      };
+
+      // ============================================
+      // STATE MANAGEMENT - Improved state with better section switching
+      // ============================================
+      const STATE = {
+        user: null,
+        userRole: null,
+        token: null,
+        cache: {},
+        sectionCache: {},
+        currentSection: "dashboard",
+        loadingStates: {},
+        autoRefreshIntervals: {},
+        isSwitchingSection: false, // Flag to prevent duplicate section loads
+
+        set(key, value) {
+          this[key] = value;
+          if (key === "token") {
+            localStorage.setItem(CONFIG.STORAGE_PREFIX + "token", value);
+          } else if (key === "user") {
+            localStorage.setItem(CONFIG.STORAGE_PREFIX + "user", JSON.stringify(value));
+          }
+        },
+
+        get(key) {
+          return this[key];
+        },
+
+        clear() {
+          this.clearAutoRefresh();
+          this.user = null;
+          this.token = null;
+          this.cache = {};
+          this.sectionCache = {};
+          this.loadingStates = {};
+          localStorage.removeItem(CONFIG.STORAGE_PREFIX + "token");
+          localStorage.removeItem(CONFIG.STORAGE_PREFIX + "user");
+        },
+
+        setCache(key, value, ttl) {
+          const finalTTL = ttl || CONFIG.CACHE_TTL[key] || CONFIG.CACHE_TTL.vaults;
+          this.cache[key] = {
+            data: value,
+            timestamp: Date.now(),
+            ttl: finalTTL,
+          };
+        },
+
+        getCache(key, ignoreExpiry = false) {
+          const cached = this.cache[key];
+          if (!cached) return null;
+          if (!ignoreExpiry && Date.now() - cached.timestamp > cached.ttl) {
+            delete this.cache[key];
+            return null;
+          }
+          return cached.data;
+        },
+
+        clearCache(key) {
+          if (key) {
+            delete this.cache[key];
+          } else {
+            this.cache = {};
+          }
+        },
+
+        setSectionCache(section, html) {
+          this.sectionCache[section] = {
+            html: html,
+            timestamp: Date.now(),
+            ttl: CONFIG.CACHE_TTL.sections,
+          };
+        },
+
+        getSectionCache(section) {
+          const cached = this.sectionCache[section];
+          if (!cached) return null;
+          if (Date.now() - cached.timestamp > cached.ttl) {
+            delete this.sectionCache[section];
+            return null;
+          }
+          return cached.html;
+        },
+
+        clearSectionCache(section) {
+          if (section) {
+            delete this.sectionCache[section];
+          } else {
+            this.sectionCache = {};
+          }
+        },
+
+        setLoading(key, isLoading) {
+          this.loadingStates[key] = isLoading;
+        },
+
+        isLoading(key) {
+          return this.loadingStates[key] || false;
+        },
+
+        setAutoRefresh(key, callback, interval) {
+          this.clearAutoRefresh(key);
+          if (CONFIG.AUTO_REFRESH.enabled && interval) {
+            this.autoRefreshIntervals[key] = setInterval(callback, interval);
+          }
+        },
+
+        clearAutoRefresh(key) {
+          if (key) {
+            if (this.autoRefreshIntervals[key]) {
+              clearInterval(this.autoRefreshIntervals[key]);
+              delete this.autoRefreshIntervals[key];
+            }
+          } else {
+            Object.keys(this.autoRefreshIntervals).forEach((k) => {
+              clearInterval(this.autoRefreshIntervals[k]);
+            });
+            this.autoRefreshIntervals = {};
+          }
+        },
+
+        shrmsToken: null,
+        setShrmsToken(token) {
+          this.shrmsToken = token;
+          localStorage.setItem(CONFIG.STORAGE_PREFIX + "shrmsToken", token);
+        },
+        getShrmsToken() {
+          if (!this.shrmsToken) {
+            this.shrmsToken = localStorage.getItem(CONFIG.STORAGE_PREFIX + "shrmsToken") || null;
+          }
+          return this.shrmsToken;
+        },
+        clearShrmsToken() {
+          this.shrmsToken = null;
+          localStorage.removeItem(CONFIG.STORAGE_PREFIX + "shrmsToken");
+        },
+      };
+
+      // ============================================
+      // LOGGING SYSTEM
+      // ============================================
+      const Logger = {
+        enabled: CONFIG.DEBUG_MODE,
+        log(...args) { if (this.enabled) console.log("[FFA]", ...args); },
+        info(...args) { if (this.enabled) console.info("[FFA]", ...args); },
+        warn(...args) { if (this.enabled) console.warn("[FFA]", ...args); },
+        error(...args) { if (this.enabled) console.error("[FFA]", ...args); },
+      };
+
+      // ============================================
+      // API LAYER
+      // ============================================
+      const API = {
+        async request(endpoint, options = {}) {
+          const baseUrl = options.baseUrl || CONFIG.API_BASE;
+          const url = `${baseUrl}${endpoint}`;
+          const ffaToken = STATE.get("token");
+          const shrmsToken = STATE.getShrmsToken();
+
+          const config = {
+            method: options.method || "GET",
+            headers: {
+              "Content-Type": "application/json",
+              ...(baseUrl === CONFIG.API_BASE && ffaToken && { Authorization: `Bearer ${ffaToken}` }),
+              ...(baseUrl === CONFIG.SHRMS_API_BASE && shrmsToken && { Authorization: `Bearer ${shrmsToken}` }),
+              ...options.headers,
+            },
+            ...options,
+          };
+
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), CONFIG.API_TIMEOUT);
+            const response = await fetch(url, { ...config, signal: controller.signal });
+            clearTimeout(timeoutId);
+
+            let data;
+            try {
+              data = await response.json();
+            } catch (parseError) {
+              throw new Error("Invalid server response");
+            }
+
+            if (!response.ok) {
+              if (response.status === 401) {
+                if (baseUrl === CONFIG.API_BASE) {
+                  APP.logout();
+                }
+                throw new Error("Session expired");
+              }
+              throw new Error(data.message || `HTTP ${response.status}`);
+            }
+            return data;
+          } catch (error) {
+            if (error.name === "AbortError") {
+              throw new Error("Request timed out");
+            }
+            throw error;
+          }
+        },
+
+        async login(phone, password) {
+          return this.request("/auth/login", {
+            method: "POST",
+            body: JSON.stringify({ phone, password }),
+          });
+        },
+
+        async getDashboard() {
+          return this.request("/dashboard");
+        },
+
+        async getVaults() {
+          const cached = STATE.getCache("vaults");
+          if (cached) return cached;
+          const resp = await this.request("/vaults");
+          STATE.setCache("vaults", resp);
+          return resp;
+        },
+
+        async createVault(data) {
+          return this.request("/vaults", { method: "POST", body: JSON.stringify(data) });
+        },
+
+        async deleteVault(id) {
+          return this.request(`/vaults/${id}`, { method: "DELETE" });
+        },
+
+        async transferBetweenVaults(data) {
+          return this.request("/vaults/transfer", { method: "POST", body: JSON.stringify(data) });
+        },
+
+        async addFundsToVault(data) {
+          return this.request("/vaults/add-funds", { method: "POST", body: JSON.stringify(data) });
+        },
+
+        async getCategories() {
+          const cached = STATE.getCache("categories");
+          if (cached) return cached;
+          const resp = await this.request("/expense-categories");
+          STATE.setCache("categories", resp);
+          return resp;
+        },
+
+        async getExpenses(params = {}) {
+          const query = new URLSearchParams(params).toString();
+          const endpoint = query ? `/expenses?${query}` : "/expenses";
+          return this.request(endpoint);
+        },
+
+        async getCashflow(params = {}) {
+          const query = new URLSearchParams(params).toString();
+          const endpoint = query ? `/cashflow?${query}` : "/cashflow";
+          return this.request(endpoint);
+        },
+
+        
+
+        async shrmsLogin(phone, password) {
+          return this.request("/auth/login", {
+            method: "POST",
+            baseUrl: CONFIG.SHRMS_API_BASE,
+            body: JSON.stringify({ phone, password }),
+          });
+        },
+
+        async getRequests(params = {}) {
+          const query = new URLSearchParams(params).toString();
+          const endpoint = query ? `/requests?${query}` : "/requests";
+          return this.request(endpoint, { baseUrl: CONFIG.SHRMS_API_BASE });
+        },
+
+        async createRequest(data) {
+          return this.request("/requests", {
+            method: "POST",
+            baseUrl: CONFIG.SHRMS_API_BASE,
+            body: JSON.stringify(data),
+          });
+        },
+
+        async approveRequest(id, data = {}) {
+          return this.request(`/requests/${id}/approve`, {
+            method: "POST",
+            baseUrl: CONFIG.SHRMS_API_BASE,
+            body: Object.keys(data).length ? JSON.stringify(data) : undefined,
+          });
+        },
+
+        async getCompanyLoans(params = {}) {
+          const query = new URLSearchParams(params).toString();
+          const endpoint = query ? `/company-loans?${query}` : "/company-loans";
+          return this.request(endpoint);
+        },
+
+        async createCompanyLoan(payload) {
+          return this.request("/company-loans", { method: "POST", body: JSON.stringify(payload) });
+        },
+
+        async deleteCompanyLoan(id) {
+          return this.request(`/company-loans/${id}`, { method: "DELETE" });
+        },
+
+        async getEmployeeLoans(params = {}) {
+          const query = new URLSearchParams(params).toString();
+          const endpoint = query ? `/employee-loans?${query}` : "/employee-loans";
+          return this.request(endpoint);
+        },
+
+        async createEmployeeLoan(payload) {
+          return this.request("/employee-loans", { method: "POST", body: JSON.stringify(payload) });
+        },
+
+        async deleteEmployeeLoan(id) {
+          return this.request(`/employee-loans/${id}`, { method: "DELETE" });
+        },
+
+        async getLoanPayments(params = {}) {
+          const query = new URLSearchParams(params).toString();
+          const endpoint = query ? `/loan-payments?${query}` : "/loan-payments";
+          return this.request(endpoint);
+        },
+
+        async createLoanPayment(payload) {
+          return this.request("/loan-payments", { method: "POST", body: JSON.stringify(payload) });
+        },
+      };
+
+      // ============================================
+      // UI COMPONENTS
+      // ============================================
+      const UI = {
+        showToast(message, type = "info", duration = 5000) {
+          const container = document.getElementById("toastContainer");
+          const toast = document.createElement("div");
+          toast.className = `toast toast-${type}`;
+          const icons = {
+            success: "fa-check-circle",
+            error: "fa-exclamation-circle",
+            warning: "fa-exclamation-triangle",
+            info: "fa-info-circle",
+          };
+          toast.innerHTML = `
+            <div class="toast-icon"><i class="fas ${icons[type]}"></i></div>
+            <div class="toast-content"><div class="toast-message">${message}</div></div>
+            <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+          `;
+          container.appendChild(toast);
+          if (duration > 0) setTimeout(() => toast.remove(), duration);
+        },
+
+        showPage(pageId) {
+          document.getElementById("loginPage").classList.add("hidden");
+          document.getElementById("dashboardPage").classList.add("hidden");
+          document.getElementById(pageId).classList.remove("hidden");
+        },
+
+        showLoading(message = "Loading...") {
+          let loadingOverlay = document.getElementById("loadingOverlay");
+          if (!loadingOverlay) {
+            loadingOverlay = document.createElement("div");
+            loadingOverlay.id = "loadingOverlay";
+            loadingOverlay.style.cssText = "position:fixed;inset:0;background:rgba(255,255,255,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#333;";
+            loadingOverlay.innerHTML = `<div style="text-align:center;"><div class="spinner spinner-primary" style="width:40px;height:40px;border-width:4px;margin:0 auto 10px;"></div><div>${message}</div></div>`;
+            document.body.appendChild(loadingOverlay);
+          } else {
+            loadingOverlay.querySelector("div > div:last-child").textContent = message;
+            loadingOverlay.style.display = "flex";
+          }
+        },
+
+        hideLoading() {
+          const loadingOverlay = document.getElementById("loadingOverlay");
+          if (loadingOverlay) loadingOverlay.style.display = "none";
+        },
+
+        showSkeleton(container, type = "default") {
+          const skeletons = {
+            stats: `<div class="stats-grid">${Array(4).fill("").map(() => `<div class="stat-card"><div class="skeleton skeleton-text" style="width:60%;margin-bottom:1rem;"></div><div class="skeleton skeleton-text" style="width:80%;height:2rem;margin-bottom:0.5rem;"></div><div class="skeleton skeleton-text" style="width:40%;"></div></div>`).join("")}</div>`,
+            table: `<div class="card"><div class="card-header"><div class="skeleton skeleton-text" style="width:200px;"></div></div><div class="card-body">${Array(5).fill("").map(() => `<div class="skeleton skeleton-text" style="margin-bottom:0.75rem;"></div>`).join("")}</div></div>`,
+            default: `<div class="card"><div class="card-body"><div class="skeleton skeleton-card"></div></div></div>`,
+          };
+          container.innerHTML = skeletons[type] || skeletons.default;
+        },
+
+        transitionContent(container, newContent, callback) {
+          if (!container) {
+            Logger.error("transitionContent: container is undefined");
+            return;
+          }
+          
+          // Direct content update for speed
+          container.innerHTML = newContent;
+          
+          // Small delay before callback to ensure DOM is ready
+          requestAnimationFrame(() => {
+            if (callback) callback();
+          });
+        },
+      };
+
+      // ============================================
+      // AUTHENTICATION
+      // ============================================
+      const Auth = {
+        async login(phone, password) {
+          try {
+            UI.showLoading("Logging in...");
+            const response = await API.login(phone, password);
+            if (response.status === "success") {
+              STATE.set("token", response.data.token);
+              STATE.set("user", response.data.employee);
+              STATE.clearSectionCache("expenses");
+              STATE.clearCache("expenses");
+              UI.hideLoading();
+              UI.showToast("Welcome back!", "success");
+              APP.initDashboard();
+            } else {
+              throw new Error(response.message || "Login failed");
+            }
+          } catch (error) {
+            Logger.error("Login failed", error);
+            UI.hideLoading();
+            UI.showToast(error.message, "error");
+          }
+        },
+
+        logout() {
+          STATE.clear();
+          UI.showPage("loginPage");
+          UI.showToast("Logged out successfully", "info");
+          STATE.clearAutoRefresh();
+        },
+
+        checkAuth() {
+          const token = localStorage.getItem(CONFIG.STORAGE_PREFIX + "token");
+          const user = localStorage.getItem(CONFIG.STORAGE_PREFIX + "user");
+          if (token && user) {
+            STATE.set("token", token);
+            STATE.set("user", JSON.parse(user));
+            return true;
+          }
+          return false;
+        },
+      };
+
+      // ============================================
+      // UTILITIES
+      // ============================================
+      const Utils = {
+        formatNumber(number, decimals = 2) {
+          return new Intl.NumberFormat("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(number || 0);
+        },
+        formatDate(dateString) {
+          return new Date(dateString).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+        },
+        formatCurrency(amount, currency = "EGP") {
+          return `${currency} ${this.formatNumber(amount)}`;
+        },
+      };
+
+      // ============================================
+      // APP - Fixed section switching logic
+      // ============================================
+      const APP = {
+        expenses: [],
+        expensesCurrentPage: 1,
+        expensesLastPage: false,
+        _companyLoans: [],
+        _employeeLoans: [],
+        _payrollRequests: [],
+
+        init() {
+          Logger.info("Initializing FFA Accounting System");
+          this.setupEventListeners();
+          if (Auth.checkAuth()) {
+            this.initDashboard();
+          } else {
+            UI.showPage("loginPage");
+          }
+        },
+
+        setupEventListeners() {
+          // Login form
+          document.getElementById("loginForm")?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const phone = document.getElementById("loginPhone").value;
+            const password = document.getElementById("loginPassword").value;
+            await Auth.login(phone, password);
+          });
+
+          // Logout
+          document.getElementById("logoutButton")?.addEventListener("click", () => Auth.logout());
+
+          // Mobile menu
+          document.getElementById("mobileMenuToggle")?.addEventListener("click", () => {
+            document.getElementById("sidebar").classList.toggle("show");
+          });
+
+          // Close sidebar on outside click (mobile)
+          document.addEventListener("click", (e) => {
+            if (window.innerWidth <= 768) {
+              const sidebar = document.getElementById("sidebar");
+              const toggle = document.getElementById("mobileMenuToggle");
+              if (sidebar && toggle && !sidebar.contains(e.target) && !toggle.contains(e.target)) {
+                sidebar.classList.remove("show");
+              }
+            }
+          });
+
+          document.addEventListener("click", (e) => {
+            const tabBtn = e.target.closest(".tab-btn");
+            if (tabBtn) {
+              e.preventDefault();
+              const tab = tabBtn.dataset.tab;
+              const tabContainer = tabBtn.closest(".expenses-breakdown, .card");
+              
+              if (tabContainer) {
+                tabContainer.querySelectorAll(".tab-btn").forEach((btn) => btn.classList.remove("active"));
+                tabBtn.classList.add("active");
+                tabContainer.querySelectorAll(".tab-content").forEach((content) => content.classList.remove("active"));
+                const targetContent = tabContainer.querySelector(`[data-content="${tab}"]`);
+                if (targetContent) targetContent.classList.add("active");
+              }
+            }
+          });
+
+          // Modal close handlers
+          this.setupModalHandlers();
+          this.setupFormHandlers();
+        },
+
+        setupModalHandlers() {
+          // Expense modal
+          document.getElementById("expenseModalClose")?.addEventListener("click", () => this.hideExpenseModal());
+          document.getElementById("expenseCancelBtn")?.addEventListener("click", () => this.hideExpenseModal());
+
+          // Vault modal
+          document.getElementById("vaultModalClose")?.addEventListener("click", () => document.getElementById("vaultModal").classList.add("hidden"));
+          document.getElementById("vaultCancelBtn")?.addEventListener("click", () => document.getElementById("vaultModal").classList.add("hidden"));
+
+          // Transfer modal
+          document.getElementById("transferModalClose")?.addEventListener("click", () => document.getElementById("transferModal").classList.add("hidden"));
+          document.getElementById("transferCancelBtn")?.addEventListener("click", () => document.getElementById("transferModal").classList.add("hidden"));
+
+          // Add funds modal
+          document.getElementById("addFundsModalClose")?.addEventListener("click", () => document.getElementById("addFundsModal").classList.add("hidden"));
+          document.getElementById("addFundsCancelBtn")?.addEventListener("click", () => document.getElementById("addFundsModal").classList.add("hidden"));
+
+          // Payroll request modal
+          document.getElementById("payrollRequestModalClose")?.addEventListener("click", () => document.getElementById("payrollRequestModal").classList.add("hidden"));
+          document.getElementById("payrollRequestCancelBtn")?.addEventListener("click", () => document.getElementById("payrollRequestModal").classList.add("hidden"));
+
+          // SHRMS login modal
+          document.getElementById("shrmsLoginModalClose")?.addEventListener("click", () => document.getElementById("shrmsLoginModal").classList.add("hidden"));
+          document.getElementById("shrmsLoginCancelBtn")?.addEventListener("click", () => document.getElementById("shrmsLoginModal").classList.add("hidden"));
+        },
+
+        setupFormHandlers() {
+          // Vault form
+          document.getElementById("vaultForm")?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const data = {
+              name: form.name.value,
+              payment_method: form.payment_method.value,
+              balance: form.balance.value,
+              commission_rate: form.commission_rate.value,
+              default_warehouse: form.default_warehouse.value,
+              is_default: form.is_default.checked,
+            };
+            await this.addVault(data);
+            document.getElementById("vaultModal").classList.add("hidden");
+          });
+
+          // Transfer form
+          document.getElementById("transferForm")?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const data = {
+              from_vault_id: form.from_vault_id.value,
+              to_vault_id: form.to_vault_id.value,
+              amount: parseFloat(form.amount.value || "0"),
+              note: form.note.value.trim() || null,
+              employee_id: form.employee_id.value || STATE.user?.id || null,
+            };
+            await this.transferMoney(data);
+            document.getElementById("transferModal").classList.add("hidden");
+          });
+
+          // Add funds form
+          document.getElementById("addFundsForm")?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const payload = {
+              vault_id: form.vault_id.value,
+              amount: parseFloat(form.amount.value || "0"),
+              employee_id: form.employee_id.value || STATE.user?.id || null,
+              note: form.note.value.trim(),
+            };
+            await this.addFundsToVault(payload);
+            document.getElementById("addFundsModal").classList.add("hidden");
+          });
+
+          // Expense form
+
+          // Expense form submit handler (ضعه في نفس المكان الحالي)
+document.getElementById("expenseForm")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const expenseId = form.dataset.expenseId;
+  
+  // ✅ في وضع التعديل: amount و vault_id معطلين لكن قيمهم الحالية تُرسل
+  const data = {
+    amount: parseFloat(form.amount.value),           // القيمة الأصلية (غير معدلة)
+    category_id: form.category_id.value || null,     // قابل للتعديل
+    type: form.type.value,                           // قابل للتعديل  
+    date: form.date.value,
+    description: form.description.value,             // قابل للتعديل
+    vault_id: form.vault_id.value,                   // الخزنة الأصلية (غير معدلة)
+    employee_id: STATE.user.id,
+  };
+
+  UI.showLoading(expenseId ? "Updating expense..." : "Adding expense...");
+  try {
+    if (expenseId) {
+      await API.request(`/expenses/${expenseId}`, { 
+        method: "PUT", 
+        body: JSON.stringify(data) 
+      });
+      UI.showToast("Expense updated successfully", "success");
+    } else {
+      await API.request("/expenses", { 
+        method: "POST", 
+        body: JSON.stringify(data) 
+      });
+      UI.showToast("Expense added successfully", "success");
+    }
+    
+    await APP.loadExpensesData(true);
+    STATE.clearSectionCache("dashboard");
+    if (STATE.currentSection === "dashboard") {
+      await APP.loadSection("dashboard", true);
+    }
+    APP.hideExpenseModal();
+  } catch (error) {
+    UI.showToast("Operation failed: " + error.message, "error");
+  } finally {
+    UI.hideLoading();
+  }
+});
+
+
+          // Payroll request form
+          document.getElementById("payrollRequestForm")?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const approveNow = form.approve_now.checked;
+            const vaultId = form.vault_id.value;
+
+            const payload = {
+              employee_id: form.employee_id.value,
+              type: form.type.value,
+              amount: parseFloat(form.amount.value),
+              month: form.month.value,
+              reason: form.reason.value,
+            };
+
+            await this.submitPayrollRequest(payload, { approveNow, vaultId });
+            document.getElementById("payrollRequestModal").classList.add("hidden");
+            await this.loadPayrollRequests();
+          });
+
+          // SHRMS login form
+          document.getElementById("shrmsLoginForm")?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            await this.handleShrmsLoginSubmit(e);
+          });
+        },
+
+        initDashboard() {
+          Logger.info("Initializing dashboard");
+          const user = STATE.get("user");
+          document.getElementById("userName").textContent = user.name;
+          document.getElementById("userRole").textContent = user.role;
+          this.buildNavigation();
+          UI.showPage("dashboardPage");
+          this.loadSection("dashboard");
+        },
+
+        buildNavigation() {
+          const navItems = [
+            { id: "dashboard", icon: "fa-tachometer-alt", label: "Dashboard" },
+            { id: "expenses", icon: "fa-receipt", label: "Expenses" },
+            { id: "vaults", icon: "fa-vault", label: "Vaults" },
+            { id: "payroll", icon: "fa-money-bill-wave", label: "Payroll" },
+            { id: "loans", icon: "fa-hand-holding-usd", label: "Loans" },
+            // { id: "vendors", icon: "fa-truck", label: "Vendors" },
+            // { id: "reports", icon: "fa-chart-bar", label: "Reports" },
+            // { id: "settings", icon: "fa-cog", label: "Settings" },
+          ];
+
+          const nav = document.getElementById("sidebarNav");
+          nav.innerHTML = navItems.map((item) => `
+            <div class="nav-item">
+              <a href="#" class="nav-link ${item.id === "dashboard" ? "active" : ""}" data-section="${item.id}">
+                <i class="fas ${item.icon}"></i>
+                <span>${item.label}</span>
+              </a>
+            </div>
+          `).join("");
+
+          nav.querySelectorAll(".nav-link").forEach((link) => {
+            link.addEventListener("click", (e) => {
+              e.preventDefault();
+              const section = link.dataset.section;
+              
+              // Update active state immediately
+              nav.querySelectorAll(".nav-link").forEach((l) => l.classList.remove("active"));
+              link.classList.add("active");
+              
+              // Update page title
+              document.getElementById("pageTitle").textContent = 
+                section.charAt(0).toUpperCase() + section.slice(1);
+
+              // Close mobile menu
+              if (window.innerWidth <= 768) {
+                document.getElementById("sidebar").classList.remove("show");
+              }
+
+              // Load section
+              this.loadSection(section, false);
+            });
+          });
+        },
+
+        async loadSection(section, forceRefresh = false) {
+          // Prevent duplicate loads
+          if (STATE.isSwitchingSection && STATE.currentSection === section) {
+            Logger.warn(`Already loading section: ${section}`);
+            return;
+          }
+
+          STATE.isSwitchingSection = true;
+          STATE.clearAutoRefresh();
+          STATE.set("currentSection", section);
+          
+          const content = document.getElementById("mainContent");
+          if (!content) {
+            STATE.isSwitchingSection = false;
+            return;
+          }
+
+          // Try cache first if not forcing refresh
+          if (!forceRefresh) {
+            const cachedHtml = STATE.getSectionCache(section);
+            if (cachedHtml) {
+              content.innerHTML = cachedHtml;
+              this.attachSectionEvents(section);
+              this.postSectionLoad(section);
+              STATE.isSwitchingSection = false;
+              return;
+            }
+          } else {
+            STATE.clearSectionCache(section);
+          }
+
+          // Show loading skeleton
+          UI.showSkeleton(content, section === "dashboard" ? "stats" : "table");
+
+          try {
+            const html = await this.renderSection(section);
+            if (html) {
+              content.innerHTML = html;
+              STATE.setSectionCache(section, html);
+              this.attachSectionEvents(section);
+              this.postSectionLoad(section);
+            }
+          } catch (error) {
+            Logger.error(`Error loading section ${section}:`, error);
+            content.innerHTML = `
+              <div class="card">
+                <div class="card-body text-center">
+                  <i class="fas fa-exclamation-triangle" style="font-size:3rem;color:var(--danger);"></i>
+                  <h3 style="margin-top:1rem;">Failed to Load</h3>
+                  <p style="color:var(--text-secondary);">${error.message}</p>
+                  <button class="btn btn-primary" onclick="APP.loadSection('${section}', true)">
+                    <i class="fas fa-redo"></i> Retry
+                  </button>
+                </div>
+              </div>
+            `;
+          } finally {
+            STATE.isSwitchingSection = false;
+          }
+        },
+
+        postSectionLoad(section) {
+          switch (section) {
+            case "dashboard":
+              this.refreshDashboardData();
+              break;
+            case "expenses":
+              this.loadExpensesData(true);
+              break;
+            case "payroll":
+              this.loadPayrollRequests();
+              break;
+            case "loans":
+              this.loadCompanyLoans();
+              break;
+          }
+        },
+
+        async renderSection(section) {
+          switch (section) {
+            case "dashboard": return await this.renderDashboard();
+            case "expenses": return await this.renderExpenses();
+            case "vaults": return await this.renderVaults();
+            case "payroll": return await this.renderPayroll();
+            case "loans": return await this.renderLoans();
+            case "vendors": return await this.renderVendors();
+            case "reports": return await this.renderReports();
+            case "settings": return await this.renderSettings();
+            default: return '<div class="card"><div class="card-body">Section not found</div></div>';
+          }
+        },
+
+        attachSectionEvents(section) {
+          const userRole = STATE.user?.role || "admin";
+          const isSuperAdmin = userRole === "super_admin";
+
+          if (section === "expenses") {
+            document.getElementById("addExpenseBtn")?.addEventListener("click", () => this.showExpenseModal());
+            
+            if (isSuperAdmin) {
+              document.querySelectorAll('[data-action="edit"]').forEach((btn) => {
+                btn.addEventListener("click", () => this.showExpenseModal(btn.dataset.id));
+              });
+              document.querySelectorAll('[data-action="delete"]').forEach((btn) => {
+                btn.addEventListener("click", async () => {
+                  if (confirm("Delete this expense?")) {
+                    try {
+                      await API.request(`/expenses/${btn.dataset.id}`, { method: "DELETE" });
+                      UI.showToast("Expense deleted", "success");
+                      await this.loadExpensesData(true);
+                    } catch (e) {
+                      UI.showToast(e.message, "error");
+                    }
+                  }
+                });
+              });
+            }
+
+            document.getElementById("loadMoreExpensesBtn")?.addEventListener("click", () => this.loadMoreExpenses());
+          }
+
+          if (section === "vaults") {
+            document.getElementById("addVaultBtn")?.addEventListener("click", () => this.showAddVaultModal());
+            document.getElementById("transferMoneyBtn")?.addEventListener("click", () => this.showTransferMoneyModal());
+            
+            document.querySelectorAll('[data-action="delete-vault"]').forEach((btn) => {
+              btn.addEventListener("click", async () => {
+                if (confirm("Delete this vault?")) {
+                  try {
+                    await API.deleteVault(btn.dataset.id);
+                    UI.showToast("Vault deleted", "success");
+                    STATE.clearCache("vaults");
+                    await this.loadSection("vaults", true);
+                  } catch (e) {
+                    UI.showToast(e.message, "error");
+                  }
+                }
+              });
+            });
+
+            document.querySelectorAll('[data-action="add-funds"]').forEach((btn) => {
+              btn.addEventListener("click", () => this.showAddFundsModal(btn.dataset.id, btn.dataset.name));
+            });
+          }
+
+
+          if (section === "payroll") {
+  document.getElementById("addPayrollRequestBtn")?.addEventListener("click", () => APP.ensureShrmsLogin(() => APP.showPayrollRequestModal()));
+
+  document.querySelectorAll(".payroll-request-approve-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const requestId = btn.dataset.requestId;
+      const vaultSelect = document.querySelector(`.request-vault-select[data-request-id="${requestId}"]`);
+      const vaultId = vaultSelect?.value;
+      if (!vaultId) {
+        UI.showToast("Please select a vault first", "warning");
+        return;
+      }
+      try {
+        await API.approveRequest(requestId, { vault_id: vaultId });
+        UI.showToast("Request approved", "success");
+        await APP.ensureShrmsLogin(() => APP.loadPayrollRequests());
+      } catch (e) {
+        UI.showToast(e.message, "error");
+      }
+    });
+  });
+}
+
+
+
+          if (section === "loans") {
+            document.querySelectorAll(".loans-tab-btn").forEach((btn) => {
+              btn.addEventListener("click", () => {
+                document.querySelectorAll(".loans-tab-btn").forEach((b) => b.classList.remove("active"));
+                btn.classList.add("active");
+                const tab = btn.dataset.loansTab;
+                if (tab === "company") this.loadCompanyLoans();
+                else if (tab === "employee") this.loadEmployeeLoans();
+                else if (tab === "payments") this.loadLoanPayments();
+              });
+            });
+          }
+        },
+
+        // ============================================
+        // DASHBOARD
+        // ============================================
+        async renderDashboard() {
+          try {
+            const [dashboardData, vaultsResponse] = await Promise.all([
+              API.getDashboard(),
+              API.getVaults(),
+            ]);
+
+            const dashboard = dashboardData.data;
+            const vaults = vaultsResponse.data;
+            const currency = dashboard.currency || "EGP";
+
+            return `
+              <div class="section-header"><h2>Vaults Overview</h2></div>
+              <div class="stats-grid" id="vaultsGrid">
+                ${this.renderDashboardVaultsGrid(vaults, currency)}
+              </div>
+              
+              <div class="section-header"><h2>Sales Statistics</h2></div>
+              <div class="stats-grid" id="salesStats">
+                ${this.renderSalesStats(dashboard, currency)}
+              </div>
+              
+              <div id="expensesSection">
+                <div class="section-header"><h2>Expenses Breakdown</h2></div>
+                <div class="skeleton skeleton-card" style="height:300px;margin-bottom:var(--space-8);"></div>
+              </div>
+              
+              <div id="cashflowSection">
+                <div class="section-header"><h2>Recent Transactions</h2></div>
+                <div class="skeleton skeleton-card" style="height:400px;"></div>
+              </div>
+            `;
+          } catch (error) {
+            Logger.error("Dashboard rendering failed:", error);
+            throw error;
+          }
+        },
+
+        async refreshDashboardData() {
+          try {
+            const [cashflowResponse, categoriesResponse] = await Promise.all([
+              API.getCashflow({ per_page: 15 }),
+              API.getCategories(),
+            ]);
+
+            const cashflow = cashflowResponse.data;
+            const categories = categoriesResponse.data;
+            const currency = "EGP";
+
+            const expensesByCategory = await this.calculateExpensesByCategory(categories);
+
+            const expensesSection = document.getElementById("expensesSection");
+            if (expensesSection) {
+              expensesSection.innerHTML = `
+                <div class="section-header"><h2>Expenses Breakdown</h2></div>
+                <div class="expenses-breakdown progressive-fade-in">
+                  ${this.renderExpensesBreakdown(expensesByCategory, currency)}
+                </div>
+              `;
+            }
+
+            const cashflowSection = document.getElementById("cashflowSection");
+            if (cashflowSection) {
+              cashflowSection.innerHTML = `
+                <div class="section-header"><h2>Recent Transactions</h2></div>
+                <div class="card progressive-fade-in">
+                  <div class="card-body">${this.renderCashflowTable(cashflow, currency)}</div>
+                </div>
+              `;
+            }
+
+            const fullHtml = document.getElementById("mainContent").innerHTML;
+            STATE.setSectionCache("dashboard", fullHtml);
+          } catch (error) {
+            Logger.error("Failed to refresh dashboard data:", error);
+          }
+        },
+
+        renderDashboardVaultsGrid(vaults, currency) {
+          if (!vaults || vaults.length === 0) {
+            return `<div class="card"><div class="card-body text-center">No vaults found.</div></div>`;
+          }
+          return vaults.map((vault) => `
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label">${vault.name}</span>
+                ${vault.is_default ? '<span class="badge badge-primary">Default</span>' : ""}
+              </div>
+              <div class="stat-value">${Number(vault.balance).toLocaleString()} ${currency}</div>
+              <div class="stat-footer"><span class="badge badge-secondary">${vault.payment_method}</span></div>
+            </div>
+          `).join("");
+        },
+
+        renderSalesStats(dashboard, currency) {
+          const stats = [
+            { label: "Daily Sales", value: dashboard.daily_sales?.total || 0, icon: "fa-calendar-day", color: "primary" },
+            { label: "Weekly Sales", value: dashboard.weekly_sales?.total || 0, icon: "fa-calendar-week", color: "info" },
+            { label: "Monthly Sales", value: dashboard.monthly_sales?.total || 0, icon: "fa-calendar-alt", color: "success" },
+          ];
+          return stats.map((stat) => `
+            <div class="stat-card">
+              <div class="stat-icon stat-${stat.color}"><i class="fas ${stat.icon}"></i></div>
+              <div class="stat-value">${Utils.formatCurrency(stat.value, currency)}</div>
+              <div class="stat-label">${stat.label}</div>
+            </div>
+          `).join("");
+        },
+
+        async calculateExpensesByCategory(categories) {
+          try {
+            const now = new Date();
+            const today = now.toISOString().split("T")[0];
+            const weekAgo = new Date(now);
+            weekAgo.setDate(now.getDate() - 7);
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+            const expensesResponse = await API.getExpenses({ per_page: 1000 });
+            const allExpenses = expensesResponse.data;
+
+            const getDateStr = (dateStr) => dateStr.substring(0, 10);
+
+            const dailyData = allExpenses.filter((exp) => getDateStr(exp.created_at) === today);
+            const weeklyData = allExpenses.filter((exp) => new Date(exp.created_at) >= weekAgo);
+            const monthlyData = allExpenses.filter((exp) => new Date(exp.created_at) >= monthStart);
+
+            const groupByCategory = (expenses) => {
+              const grouped = {};
+              expenses.forEach((exp) => {
+                const catId = exp.category_id || "uncategorized";
+                const catName = exp.category_name || "Uncategorized";
+                if (!grouped[catId]) grouped[catId] = { name: catName, total: 0 };
+                grouped[catId].total += parseFloat(exp.amount) || 0;
+              });
+              return Object.values(grouped).sort((a, b) => b.total - a.total);
+            };
+
+            return {
+              daily: { categories: groupByCategory(dailyData), total: dailyData.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0) },
+              weekly: { categories: groupByCategory(weeklyData), total: weeklyData.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0) },
+              monthly: { categories: groupByCategory(monthlyData), total: monthlyData.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0) },
+            };
+          } catch (error) {
+            Logger.error("Failed to calculate expenses:", error);
+            return { daily: { categories: [], total: 0 }, weekly: { categories: [], total: 0 }, monthly: { categories: [], total: 0 } };
+          }
+        },
+
+        renderExpensesBreakdown(data, currency) {
+          const renderPeriod = (period) => {
+            if (!period.categories.length) return `<p style="color:var(--text-secondary);">No expenses found.</p>`;
+            const maxAmount = Math.max(...period.categories.map((c) => c.total));
+            return `
+              <div class="expenses-list">
+                ${period.categories.map((cat) => `
+                  <div class="expense-item">
+                    <div class="expense-info">
+                      <span class="expense-category">${cat.name}</span>
+                      <span class="expense-amount">${Utils.formatCurrency(cat.total, currency)}</span>
+                    </div>
+                    <div class="expense-bar"><div class="expense-bar-fill" style="width:${(cat.total / maxAmount) * 100}%;"></div></div>
+                    <div class="expense-percentage">${period.total > 0 ? ((cat.total / period.total) * 100).toFixed(1) : 0}%</div>
+                  </div>
+                `).join("")}
+              </div>
+              <div class="expenses-total">Total: ${Utils.formatCurrency(period.total, currency)}</div>
+            `;
+          };
+
+          return `
+            <div class="expenses-tabs">
+              <button class="tab-btn active" data-tab="daily">Daily</button>
+              <button class="tab-btn" data-tab="weekly">Weekly</button>
+              <button class="tab-btn" data-tab="monthly">Monthly</button>
+            </div>
+            <div class="expenses-content">
+              <div class="tab-content active" data-content="daily">${renderPeriod(data.daily)}</div>
+              <div class="tab-content" data-content="weekly">${renderPeriod(data.weekly)}</div>
+              <div class="tab-content" data-content="monthly">${renderPeriod(data.monthly)}</div>
+            </div>
+          `;
+        },
+
+        renderCashflowTable(cashflow, currency) {
+          if (!cashflow || cashflow.length === 0) return `<p class="text-center" style="color:var(--text-secondary);">No recent transactions.</p>`;
+          return `
+            <div class="table-container">
+              <table class="table">
+                <thead><tr><th>Type</th><th>Description</th><th>Amount</th><th>Vault</th><th>Date</th></tr></thead>
+                <tbody>
+                  ${cashflow.map((item) => `
+                    <tr>
+                      <td><span class="badge ${item.type === "income" ? "badge-success" : "badge-danger"}">${item.type}</span></td>
+                      <td>${item.description || "-"}</td>
+                      <td style="font-weight:600;color:${item.type === "income" ? "var(--success)" : "var(--danger)"};">${item.type === "income" ? "+" : "-"}${Utils.formatCurrency(item.amount, currency)}</td>
+                      <td>${item.vault_name || "-"}</td>
+                      <td>${Utils.formatDate(item.created_at)}</td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>
+          `;
+        },
+
+        // ============================================
+        // EXPENSES
+        // ============================================
+        async renderExpenses() {
+          const userRole = STATE.user?.role || "admin";
+          const isSuperAdmin = userRole === "super_admin";
+
+          const addBtn = (isSuperAdmin || userRole === "admin")
+            ? `<div class="expea-header-btns" style="text-align:right;margin-bottom:1.5rem;">
+                <button id="addExpenseBtn" class="btn btn-primary"><i class="fas fa-plus"></i> Add Expense</button>
+               </div>`
+            : "";
+
+          return `
+            <div class="section-header"><h2>Expenses Management</h2></div>
+            ${addBtn}
+            <div class="table-container" id="expensesTableContainer" style="min-height:320px;">
+              <div class="skeleton skeleton-card" style="height:200px;"></div>
+            </div>
+            <div id="loadMoreContainer"></div>
+          `;
+        },
+
+        async loadExpensesData(reset = false) {
+          if (reset) {
+            this.expenses = [];
+            this.expensesCurrentPage = 1;
+            this.expensesLastPage = false;
+          }
+
+          try {
+            const resp = await API.getExpenses({ per_page: 20, page: this.expensesCurrentPage });
+            const newExpenses = resp.data || [];
+            this.expenses = reset ? newExpenses : [...this.expenses, ...newExpenses];
+            this.expensesLastPage = !resp.pagination || (resp.pagination.total_pages && resp.pagination.total_pages <= this.expensesCurrentPage);
+            
+            this.renderExpensesTable();
+          } catch (error) {
+            Logger.error("Failed to load expenses:", error);
+            const container = document.getElementById("expensesTableContainer");
+            if (container) container.innerHTML = `<div class="card"><div class="card-body text-center">Failed to load expenses</div></div>`;
+          }
+        },
+
+        renderExpensesTable() {
+          const userRole = STATE.user?.role || "admin";
+          const isSuperAdmin = userRole === "super_admin";
+          const expenses = this.expenses;
+
+          const container = document.getElementById("expensesTableContainer");
+          if (!container) return;
+
+          if (!expenses.length) {
+            container.innerHTML = `<div class="card"><div class="card-body text-center" style="padding:2rem;">No expenses found.</div></div>`;
+            return;
+          }
+
+          const rows = expenses.map((expense) => `
+            <tr>
+              <td><span style="color:var(--text-tertiary);">${expense.employee_name || ""}</span></td>
+              <td><span style="color:var(--text-tertiary);">${expense.description || ""}</span></td>
+              <td><span style="font-weight:700;color:var(--primary);">${Number(expense.amount).toLocaleString()} EGP</span></td>
+              <td>${expense.category_name || "Uncategorized"}</td>
+              <td><span style="color:var(--text-secondary);">${expense.created_at}</span></td>
+              <td>
+                ${isSuperAdmin ? `
+                  <button class="btn btn-secondary btn-sm" data-id="${expense.id}" data-action="edit" style="margin-right:2px;">Edit</button>
+                  <button class="btn btn-danger btn-sm" data-id="${expense.id}" data-action="delete">Delete</button>
+                ` : ""}
+              </td>
+            </tr>
+          `).join("");
+
+          container.innerHTML = `
+            <table class="table">
+              <thead><tr><th>Employee</th><th>Description</th><th>Amount</th><th>Category</th><th>Date</th><th>Actions</th></tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+          `;
+
+          // Load more button
+          const loadMoreContainer = document.getElementById("loadMoreContainer");
+          if (loadMoreContainer) {
+            loadMoreContainer.innerHTML = !this.expensesLastPage
+              ? `<div style="text-align:center;margin:1.5rem 0;"><button id="loadMoreExpensesBtn" class="btn btn-secondary">Load More</button></div>`
+              : "";
+          }
+
+          // Re-attach events
+          this.attachSectionEvents("expenses");
+        },
+
+        async loadMoreExpenses() {
+          this.expensesCurrentPage++;
+          await this.loadExpensesData(false);
+        },
+
+
+        async showExpenseModal(expenseId = null) {
+  const modal = document.getElementById("expenseModal");
+  const title = document.getElementById("expenseModalTitle");
+  const form = document.getElementById("expenseForm");
+
+  form.reset();
+  const currentUserId = STATE.user?.id || "";
+
+  try {
+    const [categoriesResp, vaultsResponse] = await Promise.all([
+      API.getCategories(),
+      API.getVaults(),
+    ]);
+
+    const categorySelect = document.getElementById("expenseCategory");
+    categorySelect.innerHTML = '<option value="">Select category</option>';
+    categoriesResp.data.forEach((cat) => {
+      categorySelect.insertAdjacentHTML("beforeend", `<option value="${cat.id}">${cat.name}</option>`);
+    });
+
+    const vaultSelect = document.getElementById("expenseVault");
+    vaultSelect.innerHTML = '<option value="">Select vault</option>';
+    vaultsResponse.data.forEach((vault) => {
+      vaultSelect.insertAdjacentHTML("beforeend", `<option value="${vault.id}">${vault.name}</option>`);
+    });
+
+    document.getElementById("expenseEmployee").value = currentUserId;
+
+    if (expenseId) {
+      title.textContent = "Edit Expense";
+      const expenseResp = await API.getExpenses({ id: expenseId });
+      const exp = expenseResp.data[0];
+      
+      // ملء جميع الحقول
+      form.amount.value = exp.amount;
+      form.category_id.value = exp.category_id || "";
+      form.type.value = exp.type;
+      form.date.value = exp.date ? exp.date.split("T")[0] : "";
+      form.description.value = exp.description || "";
+      form.vault_id.value = exp.vault_id || "";
+      form.dataset.expenseId = expenseId;
+      
+      // ✅ تعطيل amount و vault_id في وضع التعديل
+      form.amount.disabled = true;
+      form.vault_id.disabled = true;
+      form.amount.style.backgroundColor = '#f8f9fa';
+      form.vault_id.style.backgroundColor = '#f8f9fa';
+      
+      // ✅ إضافة نص توضيحي
+      const amountLabel = modal.querySelector('label[for="amount"]');
+      const vaultLabel = modal.querySelector('label[for="vault_id"]');
+      if (amountLabel && !amountLabel.querySelector('small')) {
+        amountLabel.innerHTML += ' <small style="color: var(--text-secondary);">(غير قابل للتعديل)</small>';
+      }
+      if (vaultLabel && !vaultLabel.querySelector('small')) {
+        vaultLabel.innerHTML += ' <small style="color: var(--text-secondary);">(غير قابل للتعديل)</small>';
+      }
+      
+    } else {
+      title.textContent = "Add Expense";
+      delete form.dataset.expenseId;
+      form.date.value = new Date().toISOString().split("T")[0];
+      
+      // ✅ تفعيل جميع الحقول في وضع الإضافة
+      form.amount.disabled = false;
+      form.vault_id.disabled = false;
+      form.amount.style.backgroundColor = '';
+      form.vault_id.style.backgroundColor = '';
+    }
+
+    modal.classList.remove("hidden");
+  } catch (error) {
+    UI.showToast("Failed to load form data: " + error.message, "error");
+  }
+},
+
+
+
+hideExpenseModal() {
+  const modal = document.getElementById("expenseModal");
+  const form = document.getElementById("expenseForm");
+  
+  if (form) {
+    form.reset();
+    delete form.dataset.expenseId;
+    
+    // ✅ إعادة تفعيل الحقول وإزالة التنسيق
+    const amountField = form.amount;
+    const vaultField = form.vault_id;
+    if (amountField) {
+      amountField.disabled = false;
+      amountField.style.backgroundColor = '';
+    }
+    if (vaultField) {
+      vaultField.disabled = false;
+      vaultField.style.backgroundColor = '';
+    }
+  }
+  
+  // ✅ إزالة النصوص التوضيحية
+  const labels = modal?.querySelectorAll('label');
+  labels?.forEach(label => {
+    label.innerHTML = label.innerHTML.replace(/<small.*?<\/small>$/, '');
+  });
+  
+  modal?.classList.add("hidden");
+},
+
+
+        // ============================================
+        // VAULTS
+        // ============================================
+        async renderVaults() {
+          try {
+            const response = await API.getVaults();
+            const vaults = response.data || [];
+            const currency = "EGP";
+
+            if (!vaults.length) {
+              return `
+                <div class="section-header"><h2>Vaults</h2></div>
+                <div class="card"><div class="card-body text-center">No vaults found.</div></div>
+              `;
+            }
+
+            return `
+              <div class="section-header">
+                <h2>Vaults</h2>
+                <div style="text-align:center;margin:17px auto;">
+                  <button id="addVaultBtn" class="btn btn-primary" style="margin-right:8px;"><i class="fas fa-plus"></i> Add Vault</button>
+                  <button id="transferMoneyBtn" class="btn btn-secondary"><i class="fas fa-exchange-alt"></i> Transfer Money</button>
+                </div>
+              </div>
+              <div class="stats-grid" id="vaultsGrid">${this.renderVaultsManagementGrid(vaults, currency)}</div>
+            `;
+          } catch (error) {
+            Logger.error("Failed to load vaults:", error);
+            return `<div class="card"><div class="card-body text-center">Failed to load vaults data.</div></div>`;
+          }
+        },
+
+        renderVaultsManagementGrid(vaults, currency) {
+          if (!vaults || vaults.length === 0) return `<div class="card"><div class="card-body text-center">No vaults found.</div></div>`;
+          const userRole = STATE.user?.role || "admin";
+          const isSuperAdmin = userRole === "super_admin";
+
+          return vaults.map((vault) => `
+            <div class="stat-card vault-card">
+              <div class="stat-header">
+                <span class="stat-label">${vault.name}</span>
+                ${vault.is_default ? '<span class="badge badge-primary" style="margin-left:6px;">Default</span>' : ""}
+              </div>
+              <div class="stat-value">${Number(vault.balance).toLocaleString()} ${currency}</div>
+              <div class="stat-footer">
+                <span class="badge badge-secondary">${vault.payment_method}</span>
+                ${vault.commission_rate > 0 ? `<span class="badge badge-warning">${vault.commission_rate}%</span>` : ""}
+              </div>
+              ${isSuperAdmin ? `
+                <div class="vault-actions" style="margin-top:20px;text-align:center;display:flex;justify-content:space-between;">
+                  <button class="btn btn-sm btn-danger" data-action="delete-vault" data-id="${vault.id}">Delete</button>
+                  <button class="btn btn-sm btn-primary" data-action="add-funds" data-id="${vault.id}" data-name="${vault.name}" style="margin-left:8px;">Add Funds</button>
+                </div>
+              ` : ""}
+            </div>
+          `).join("");
+        },
+
+        async addVault(vaultData) {
+          const userId = STATE.user?.id || null;
+          const payload = {
+            name: vaultData.name.trim(),
+            payment_method: vaultData.payment_method,
+            balance: Number(vaultData.balance || 0),
+            commission_rate: Number(vaultData.commission_rate || 0),
+            default_warehouse: vaultData.default_warehouse?.trim() || "",
+            employees: [userId],
+            is_default: vaultData.is_default ? 1 : 0,
+          };
+
+          try {
+            UI.showLoading("Adding vault...");
+            await API.createVault(payload);
+            UI.showToast("Vault added successfully", "success");
+            STATE.clearCache("vaults");
+            STATE.clearSectionCache("dashboard");
+            await this.loadSection("vaults", true);
+          } catch (error) {
+            UI.showToast("Failed to add vault: " + error.message, "error");
+          } finally {
+            UI.hideLoading();
+          }
+        },
+
+        async transferMoney(transferData) {
+          try {
+            UI.showLoading("Transferring money...");
+            await API.transferBetweenVaults(transferData);
+            UI.showToast("Money transferred successfully", "success");
+            STATE.clearCache("vaults");
+            STATE.clearSectionCache("dashboard");
+            await this.loadSection("vaults", true);
+          } catch (error) {
+            UI.showToast("Transfer failed: " + error.message, "error");
+          } finally {
+            UI.hideLoading();
+          }
+        },
+
+        showAddVaultModal() {
+          const modal = document.getElementById("vaultModal");
+          const form = document.getElementById("vaultForm");
+          if (!modal || !form) return;
+          form.reset();
+          form.dataset.id = "";
+          modal.classList.remove("hidden");
+        },
+
+        async showTransferMoneyModal() {
+          const modal = document.getElementById("transferModal");
+          const form = document.getElementById("transferForm");
+          if (!modal || !form) return;
+
+          form.reset();
+          document.getElementById("transferEmployee").value = STATE.user?.id || "";
+
+          try {
+            const resp = await API.getVaults();
+            const vaults = resp.data || [];
+            const fromSelect = document.getElementById("fromVault");
+            const toSelect = document.getElementById("toVault");
+
+            fromSelect.innerHTML = '<option value="">Select vault</option>';
+            toSelect.innerHTML = '<option value="">Select vault</option>';
+
+            vaults.forEach((v) => {
+              fromSelect.insertAdjacentHTML("beforeend", `<option value="${v.id}">${v.name}</option>`);
+              toSelect.insertAdjacentHTML("beforeend", `<option value="${v.id}">${v.name}</option>`);
+            });
+          } catch (error) {
+            Logger.error("Failed to load vaults:", error);
+          }
+
+          modal.classList.remove("hidden");
+        },
+
+        showAddFundsModal(vaultId, vaultName) {
+          const modal = document.getElementById("addFundsModal");
+          const form = document.getElementById("addFundsForm");
+          if (!modal || !form) return;
+
+          form.reset();
+          document.getElementById("addFundsVaultName").value = vaultName || "";
+          document.getElementById("addFundsVaultId").value = vaultId;
+          document.getElementById("addFundsEmployeeId").value = STATE.user?.id || "";
+          modal.classList.remove("hidden");
+        },
+
+        async addFundsToVault(payload) {
+          try {
+            UI.showLoading("Adding funds...");
+            await API.addFundsToVault(payload);
+            UI.showToast("Funds added successfully", "success");
+            STATE.clearCache("vaults");
+            STATE.clearSectionCache("dashboard");
+            await this.loadSection("vaults", true);
+          } catch (error) {
+            UI.showToast("Failed to add funds: " + error.message, "error");
+          } finally {
+            UI.hideLoading();
+          }
+        },
+
+        // ============================================
+        // PAYROLL
+        // ============================================
+        async renderPayroll() {
+          return `
+            <div class="section-header">
+              <h2>Payroll Management</h2>
+            </div>
+            <div style="text-align:right;margin-bottom:1.5rem;">
+              <button id="addPayrollRequestBtn" class="btn btn-primary"><i class="fas fa-plus"></i> New Request</button>
+            </div>
+            <div id="payrollRequestsContainer">
+              <div class="skeleton skeleton-card" style="height:300px;"></div>
+            </div>
+          `;
+        },
+
+
+ // أضف هذه الدالة داخل كائن APP، قبل الدوال الأخرى مثل loadPayrollRequests
+ensureShrmsLogin: async function(callback) {
+  const shrmsToken = STATE.getShrmsToken();
+  if (shrmsToken) {
+    Logger.log("SHRMS token found, executing callback");
+    return await callback();
+  }
+
+  Logger.log("No SHRMS token, opening login modal");
+  return new Promise((resolve, reject) => {
+    APP._shrmsLoginSuccessCallback = async () => {
+      try {
+        const result = await callback();
+        resolve(result);
+      } catch (err) {
+        reject(err);
+      }
+    };
+    APP.showShrmsLoginModal();
+  });
+},
+
+
+async loadPayrollRequests() {
+  Logger.log("loadPayrollRequests called");
+
+  try {
+    await APP.ensureShrmsLogin(async () => {
+      UI.showInlineLoader?.("payrollRequests");
+
+      const resp = await API.getRequests({ per_page: 50 });
+      const requests = resp.data || [];
+
+      Logger.log("Payroll requests loaded:", requests.length);
+
+      const stats = {
+        total: requests.length,
+        pending: 0,
+        approved: 0,
+        rejected: 0,
+        byType: { advance: 0, bonus: 0, deduction: 0 },
+        totalAmount: 0,
+      };
+
+      requests.forEach(req => {
+        const status = req.status || "pending";
+        const type = req.type || "advance";
+        const amount = Number(req.amount || 0);
+
+        stats.totalAmount += amount;
+        if (stats.byType[type] != null) stats.byType[type] += 1;
+
+        if (status === "approved") stats.approved += 1;
+        else if (status === "rejected") stats.rejected += 1;
+        else stats.pending += 1;
+      });
+
+      this._payrollRequests = requests;
+      this._payrollRequestStats = stats;
+
+      this.renderPayrollRequestsTable(requests, stats);
+
+      UI.hideInlineLoader?.("payrollRequests");
+    });
+  } catch (error) {
+    Logger.error("Failed to load payroll requests:", error);
+    UI.showToast("Failed to load payroll requests: " + error.message, "error");
+    UI.hideInlineLoader?.("payrollRequests");
+  }
+},
+
+
+        renderPayrollRequestsTable(requests, stats) {
+          const container = document.getElementById("payrollRequestsContainer");
+          if (!container) return;
+          const currency = "EGP";
+
+          const statsHtml = `
+            <div class="card mb-3">
+              <div class="card-body">
+                <div class="row text-center">
+                  <div class="col"><div class="small text-muted">Total Requests</div><div class="h5">${stats.total}</div></div>
+                  <div class="col"><div class="small text-muted">Pending</div><div class="h5">${stats.pending}</div></div>
+                  <div class="col"><div class="small text-muted">Approved</div><div class="h5">${stats.approved}</div></div>
+                  <div class="col"><div class="small text-muted">Rejected</div><div class="h5">${stats.rejected}</div></div>
+                  <div class="col"><div class="small text-muted">Total Amount</div><div class="h5">${stats.totalAmount.toLocaleString()} ${currency}</div></div>
+                </div>
+              </div>
+            </div>
+          `;
+
+          const rowsHtml = requests.map((req) => {
+            const status = req.status || "pending";
+            const isPending = status !== "approved" && status !== "rejected";
+            const amount = Number(req.amount || 0);
+            const statusBadgeClass = status === "approved" ? "success" : status === "rejected" ? "danger" : "warning";
+
+            return `
+              <tr data-request-id="${req.id}">
+                <td>${req.id}</td>
+                <td>${req.employee_name || req.employee_id}</td>
+                <td>${req.type}</td>
+                <td>${amount.toLocaleString()} ${currency}</td>
+                <td>${req.month || "-"}</td>
+                <td>${req.reason || "-"}</td>
+                <td><span class="badge badge-${statusBadgeClass}">${status}</span></td>
+                <td>${isPending ? `<select class="form-select request-vault-select" data-request-id="${req.id}"><option value="">Select vault</option></select>` : "-"}</td>
+                <td>${isPending ? `<button class="btn btn-sm btn-success payroll-request-approve-btn" data-request-id="${req.id}">Approve</button>` : ""}</td>
+              </tr>
+            `;
+          }).join("");
+
+          container.innerHTML = `
+            ${statsHtml}
+            <div class="card">
+              <div class="card-header"><h5 class="mb-0">Payroll Requests</h5></div>
+              <div class="card-body">
+                <div class="table-container">
+                  <table class="table">
+                    <thead><tr><th>ID</th><th>Employee</th><th>Type</th><th>Amount</th><th>Month</th><th>Reason</th><th>Status</th><th>Vault</th><th>Actions</th></tr></thead>
+                    <tbody>${rowsHtml || `<tr><td colspan="9" class="text-center">No requests found</td></tr>`}</tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          `;
+
+          this.populateRequestVaultSelects();
+          this.attachSectionEvents("payroll");
+        },
+
+        async populateRequestVaultSelects() {
+          const selects = document.querySelectorAll(".request-vault-select");
+          if (!selects.length) return;
+
+          let cachedVaults = STATE.getCache("vaults");
+          if (!cachedVaults) {
+            try {
+              cachedVaults = await API.getVaults();
+            } catch (err) {
+              return;
+            }
+          }
+
+          const vaults = cachedVaults?.data || [];
+          selects.forEach((sel) => {
+            sel.innerHTML = '<option value="">Select vault</option>';
+            vaults.forEach((v) => {
+              sel.insertAdjacentHTML("beforeend", `<option value="${v.id}">${v.name} (${v.payment_method}) - ${Number(v.balance).toLocaleString()} EGP</option>`);
+            });
+          });
+        },
+
+
+        async showPayrollRequestModal() {
+  Logger.log("showPayrollRequestModal called");
+
+  try {
+    await APP.ensureShrmsLogin(async () => {
+      const modal = document.getElementById("payrollRequestModal");
+      const form = document.getElementById("payrollRequestForm");
+      const monthInput = document.getElementById("requestMonth");
+      const approveNowCheckbox = document.getElementById("requestApproveNow");
+      const vaultSelect = document.getElementById("requestVault");
+      const vaultGroup = document.getElementById("requestVaultGroup");
+
+      if (!modal || !form) {
+        Logger.warn("Payroll request modal not found");
+        return;
+      }
+
+      form.reset();
+
+      if (monthInput) {
+        const now = new Date();
+        monthInput.value = now.toISOString().slice(0, 7);
+      }
+
+      if (approveNowCheckbox) {
+        approveNowCheckbox.checked = true;
+        const syncVisibility = () => {
+          if (approveNowCheckbox.checked && vaultGroup) {
+            vaultGroup.style.display = "";
+          } else if (vaultGroup) {
+            vaultGroup.style.display = "none";
+            if (vaultSelect) vaultSelect.value = "";
+          }
+        };
+        syncVisibility();
+        if (!approveNowCheckbox._bound) {
+          approveNowCheckbox.addEventListener("change", syncVisibility);
+          approveNowCheckbox._bound = true;
+        }
+      }
+
+      // تحميل الموظفين من SHRMS
+      try {
+        const resp = await API.request("/employees", { baseUrl: CONFIG.SHRMS_API_BASE });
+        const employees = resp.data || [];
+        const select = document.getElementById("requestEmployee");
+        select.innerHTML = '<option value="">Select employee</option>';
+        employees.forEach(emp => {
+          const option = document.createElement("option");
+          option.value = emp.id;
+          option.textContent = emp.name;
+          select.appendChild(option);
+        });
+      } catch (err) {
+        Logger.error("Failed to load employees for requests:", err);
+        UI.showToast("Failed to load employees from HR system: " + err.message, "error");
+      }
+
+      // تحميل الخزن لطلبات المرتبات
+      let cachedVaults = STATE.getCache("vaults");
+      if (!cachedVaults) {
+        try {
+          cachedVaults = await API.getVaults();
+        } catch (err) {
+          Logger.error("Failed to load vaults for requests:", err);
+        }
+      }
+      if (vaultSelect && cachedVaults) {
+        vaultSelect.innerHTML = '<option value="">Select vault</option>';
+        (cachedVaults.data || []).forEach(v => {
+          const opt = document.createElement("option");
+          opt.value = v.id;
+          opt.textContent = `${v.name} (${v.payment_method}) - ${Number(v.balance).toLocaleString()} EGP`;
+          vaultSelect.appendChild(opt);
+        });
+      }
+
+      modal.classList.remove("hidden");
+    });
+  } catch (error) {
+    Logger.error("Failed to show payroll request modal:", error);
+    UI.showToast("Please login to HR system first.", "error");
+  }
+},
+
+
+
+        async submitPayrollRequest(payload, options = {}) {
+          const approveNow = options.approveNow || false;
+          const vaultId = options.vaultId ? Number(options.vaultId) : 0;
+
+          try {
+            UI.showLoading("Submitting request...");
+            const resp = await API.createRequest(payload);
+            const requestId = resp.data?.id || resp.data?.request_id || null;
+
+            if (!requestId) throw new Error("Request created but no ID returned");
+
+            UI.showToast("Request created successfully", "success");
+
+            if (approveNow && vaultId) {
+              try {
+                await API.approveRequest(requestId, { vault_id: vaultId });
+                UI.showToast("Request approved and paid successfully", "success");
+              } catch (approveErr) {
+                UI.showToast("Request created but approval failed: " + approveErr.message, "error");
+              }
+            }
+          } catch (error) {
+            UI.showToast("Failed to create request: " + error.message, "error");
+          } finally {
+            UI.hideLoading();
+          }
+        },
+
+        async handleShrmsLoginSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const phone = form.phone.value;
+  const password = form.password.value;
+
+  try {
+    UI.showLoading("Logging into HR system...");
+    const resp = await API.shrmsLogin(phone, password);
+    const token = resp.data?.token || resp.token || null;
+    if (!token) throw new Error("No SHRMS token returned");
+
+    STATE.setShrmsToken(token);
+    UI.showToast("HR login successful", "success");
+    document.getElementById("shrmsLoginModal")?.classList.add("hidden");
+
+    if (typeof APP._shrmsLoginSuccessCallback === "function") {
+      const cb = APP._shrmsLoginSuccessCallback;
+      APP._shrmsLoginSuccessCallback = null;
+      await cb();
+    }
+  } catch (error) {
+    UI.showToast("HR login failed: " + error.message, "error");
+  } finally {
+    UI.hideLoading();
+  }
+},
+
+
+        showShrmsLoginModal: function() {
+  Logger.log("showShrmsLoginModal called");
+  
+  const modal = document.getElementById("shrmsLoginModal");
+  const form = document.getElementById("shrmsLoginForm");
+  const phoneInput = document.getElementById("shrmsPhone");
+  const passwordInput = document.getElementById("shrmsPassword");
+
+  if (!modal || !form || !phoneInput || !passwordInput) {
+    Logger.warn("SHRMS login modal or fields not found");
+    return;
+  }
+
+  form.reset();
+  phoneInput.value = STATE.user?.phone || "";
+  modal.classList.remove("hidden");
+},
+
+
+        // ============================================
+        // LOANS
+        // ============================================
+        async renderLoans() {
+          return `
+            <div class="section-header"><h2>Loans Management</h2></div>
+            <div class="card mb-3">
+              <div class="card-body">
+                <div class="btn-group" role="group">
+                  <button class="btn btn-sm btn-outline-primary loans-tab-btn active" data-loans-tab="company">Company Loans</button>
+                  <button class="btn btn-sm btn-outline-primary loans-tab-btn" data-loans-tab="employee">Employee Loans</button>
+                  <button class="btn btn-sm btn-outline-primary loans-tab-btn" data-loans-tab="payments">Loan Payments</button>
+                </div>
+              </div>
+            </div>
+            <div id="loansStats" class="stats-wrapper mb-3"></div>
+            <div id="loansListContainer"><div class="skeleton skeleton-card" style="height:300px;"></div></div>
+          `;
+        },
+
+        async loadCompanyLoans() {
+          try {
+            const resp = await API.getCompanyLoans({ per_page: 50 });
+            const loans = resp.data || [];
+
+            const stats = { total: loans.length, active: 0, completed: 0, defaulted: 0, totalAmount: 0, remainingAmount: 0 };
+            loans.forEach((loan) => {
+              const status = loan.status || "active";
+              stats.totalAmount += Number(loan.loan_amount || 0);
+              stats.remainingAmount += Number(loan.remaining_balance || 0);
+              if (status === "completed") stats.completed++;
+              else if (status === "defaulted") stats.defaulted++;
+              else stats.active++;
+            });
+
+            this._companyLoans = loans;
+            this.renderCompanyLoansTable(loans, stats);
+          } catch (error) {
+            Logger.error("Failed to load company loans:", error);
+            UI.showToast("Failed to load company loans", "error");
+          }
+        },
+
+        renderCompanyLoansTable(loans, stats) {
+          const container = document.getElementById("loansListContainer");
+          const statsContainer = document.getElementById("loansStats");
+          if (!container) return;
+          const currency = "EGP";
+
+          if (statsContainer) {
+            statsContainer.innerHTML = `
+              <div class="card stats-card">
+                <div class="card-body">
+                  <div class="row stats-row text-center">
+                    <div class="col stats-col"><div class="stats-label">Total Loans</div><div class="stats-value">${stats.total}</div></div>
+                    <div class="col stats-col"><div class="stats-label">Active</div><div class="stats-value">${stats.active}</div></div>
+                    <div class="col stats-col"><div class="stats-label">Completed</div><div class="stats-value">${stats.completed}</div></div>
+                    <div class="col stats-col"><div class="stats-label">Total Amount</div><div class="stats-value">${stats.totalAmount.toLocaleString()} ${currency}</div></div>
+                    <div class="col stats-col"><div class="stats-label">Remaining</div><div class="stats-value">${stats.remainingAmount.toLocaleString()} ${currency}</div></div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+
+          const rowsHtml = loans.map((loan) => `
+            <tr>
+              <td>${loan.id}</td>
+              <td>${loan.lender_name || "-"}</td>
+              <td>${Number(loan.loan_amount || 0).toLocaleString()} ${currency}</td>
+              <td>${Number(loan.remaining_balance || 0).toLocaleString()} ${currency}</td>
+              <td><span class="badge badge-${loan.status === "completed" ? "success" : loan.status === "defaulted" ? "danger" : "primary"}">${loan.status || "active"}</span></td>
+              <td>${loan.created_at || "-"}</td>
+            </tr>
+          `).join("");
+
+          container.innerHTML = `
+            <div class="card">
+              <div class="card-header"><h5 class="mb-0">Company Loans</h5></div>
+              <div class="card-body">
+                <div class="table-container">
+                  <table class="table">
+                    <thead><tr><th>ID</th><th>Lender</th><th>Amount</th><th>Remaining</th><th>Status</th><th>Date</th></tr></thead>
+                    <tbody>${rowsHtml || `<tr><td colspan="6" class="text-center">No loans found</td></tr>`}</tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          `;
+        },
+
+        async loadEmployeeLoans() {
+          try {
+            const resp = await API.getEmployeeLoans({ per_page: 50 });
+            const loans = resp.data || [];
+
+            const stats = { total: loans.length, active: 0, completed: 0, suspended: 0, totalAmount: 0, remainingAmount: 0 };
+            loans.forEach((loan) => {
+              const status = loan.status || "active";
+              stats.totalAmount += Number(loan.loan_amount || 0);
+              stats.remainingAmount += Number(loan.remaining_balance || 0);
+              if (status === "completed") stats.completed++;
+              else if (status === "suspended") stats.suspended++;
+              else stats.active++;
+            });
+
+            this._employeeLoans = loans;
+            this.renderEmployeeLoansTable(loans, stats);
+          } catch (error) {
+            Logger.error("Failed to load employee loans:", error);
+            UI.showToast("Failed to load employee loans", "error");
+          }
+        },
+
+        renderEmployeeLoansTable(loans, stats) {
+          const container = document.getElementById("loansListContainer");
+          const statsContainer = document.getElementById("loansStats");
+          if (!container) return;
+          const currency = "EGP";
+
+          if (statsContainer) {
+            statsContainer.innerHTML = `
+              <div class="card stats-card">
+                <div class="card-body">
+                  <div class="row stats-row text-center">
+                    <div class="col stats-col"><div class="stats-label">Total Loans</div><div class="stats-value">${stats.total}</div></div>
+                    <div class="col stats-col"><div class="stats-label">Active</div><div class="stats-value">${stats.active}</div></div>
+                    <div class="col stats-col"><div class="stats-label">Completed</div><div class="stats-value">${stats.completed}</div></div>
+                    <div class="col stats-col"><div class="stats-label">Total Amount</div><div class="stats-value">${stats.totalAmount.toLocaleString()} ${currency}</div></div>
+                    <div class="col stats-col"><div class="stats-label">Remaining</div><div class="stats-value">${stats.remainingAmount.toLocaleString()} ${currency}</div></div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+
+          const rowsHtml = loans.map((loan) => `
+            <tr>
+              <td>${loan.id}</td>
+              <td>${loan.employee_name || "-"}</td>
+              <td>${Number(loan.loan_amount || 0).toLocaleString()} ${currency}</td>
+              <td>${Number(loan.remaining_balance || 0).toLocaleString()} ${currency}</td>
+              <td><span class="badge badge-${loan.status === "completed" ? "success" : loan.status === "suspended" ? "warning" : "primary"}">${loan.status || "active"}</span></td>
+              <td>${loan.created_at || "-"}</td>
+            </tr>
+          `).join("");
+
+          container.innerHTML = `
+            <div class="card">
+              <div class="card-header"><h5 class="mb-0">Employee Loans</h5></div>
+              <div class="card-body">
+                <div class="table-container">
+                  <table class="table">
+                    <thead><tr><th>ID</th><th>Employee</th><th>Amount</th><th>Remaining</th><th>Status</th><th>Date</th></tr></thead>
+                    <tbody>${rowsHtml || `<tr><td colspan="6" class="text-center">No loans found</td></tr>`}</tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          `;
+        },
+
+        async loadLoanPayments() {
+          try {
+            const resp = await API.getLoanPayments({ per_page: 50 });
+            const payments = resp.data || [];
+            this.renderLoanPaymentsTable(payments);
+          } catch (error) {
+            Logger.error("Failed to load loan payments:", error);
+            UI.showToast("Failed to load loan payments", "error");
+          }
+        },
+
+        renderLoanPaymentsTable(payments) {
+          const container = document.getElementById("loansListContainer");
+          const statsContainer = document.getElementById("loansStats");
+          if (!container) return;
+          const currency = "EGP";
+
+          if (statsContainer) statsContainer.innerHTML = "";
+
+          const rowsHtml = payments.map((p) => `
+            <tr>
+              <td>${p.id}</td>
+              <td>${p.loan_id || "-"}</td>
+              <td>${Number(p.amount || 0).toLocaleString()} ${currency}</td>
+              <td>${p.payment_date || "-"}</td>
+              <td>${p.note || "-"}</td>
+            </tr>
+          `).join("");
+
+          container.innerHTML = `
+            <div class="card">
+              <div class="card-header"><h5 class="mb-0">Loan Payments</h5></div>
+              <div class="card-body">
+                <div class="table-container">
+                  <table class="table">
+                    <thead><tr><th>ID</th><th>Loan ID</th><th>Amount</th><th>Date</th><th>Note</th></tr></thead>
+                    <tbody>${rowsHtml || `<tr><td colspan="5" class="text-center">No payments found</td></tr>`}</tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          `;
+        },
+
+        // ============================================
+        // OTHER SECTIONS
+        // ============================================
+        async renderVendors() {
+          return `<div class="card"><div class="card-header"><h3 class="card-title">Vendors Management</h3></div><div class="card-body"><p>This section is under development.</p></div></div>`;
+        },
+
+        async renderReports() {
+          return `<div class="card"><div class="card-header"><h3 class="card-title">Reports & Analytics</h3></div><div class="card-body"><p>This section is under development.</p></div></div>`;
+        },
+
+        async renderSettings() {
+          return `<div class="card"><div class="card-header"><h3 class="card-title">Settings</h3></div><div class="card-body"><p>This section is under development.</p></div></div>`;
+        },
+
+        logout() {
+          Auth.logout();
+        },
+      };
+
+      // ============================================
+      // START APP
+      // ============================================
+      document.addEventListener("DOMContentLoaded", () => {
+        APP.init();
+      });
+
+      // Global error handlers
+      window.addEventListener("error", (event) => Logger.error("Global error:", event.error));
+      window.addEventListener("unhandledrejection", (event) => Logger.error("Unhandled rejection:", event.reason));
+
+      // Debug mode
+      if (CONFIG.DEBUG_MODE) {
+        window.FFA_DEBUG = { STATE, API, Logger, CONFIG, APP };
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,3211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tender Frozen Orders Management</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+  <style>
+    /* ==================== BASE RESET ==================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --primary: #1a73e8;
+      --primary-dark: #1557b0;
+      --primary-light: #e8f0fe;
+      --secondary: #5f6368;
+      --success: #34a853;
+      --danger: #ea4335;
+      --warning: #fbbc04;
+      --info: #4285f4;
+      --light: #f8f9fa;
+      --bg: #f1f3f4;
+      --border: #dadce0;
+      --dark: #202124;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.08);
+      --shadow: 0 2px 8px rgba(0,0,0,0.1);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.15);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --transition: 0.2s ease;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--dark);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    #app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .screen {
+      display: none;
+      min-height: 100vh;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    /* ==================== BUTTONS ==================== */
+    .btn {
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all var(--transition);
+      background: var(--primary);
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--secondary);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--light);
+      border-color: var(--secondary);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--secondary);
+      border: none;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(0,0,0,0.05);
+    }
+
+    .btn-icon {
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border-radius: 50%;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
+
+    .btn-xs {
+      padding: 4px 8px;
+      font-size: 11px;
+      border-radius: 4px;
+    }
+
+    .btn-success { background: var(--success); }
+    .btn-danger { background: var(--danger); }
+    .btn-warning { background: var(--warning); color: #000; }
+    .btn-info { background: var(--info); }
+
+    /* ==================== LOGIN SCREEN ==================== */
+    .login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .login-card {
+      background: #fff;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .login-logo i {
+      font-size: 48px;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+
+    .login-logo h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    .login-logo p {
+      font-size: 14px;
+      color: var(--secondary);
+      margin-top: 4px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--dark);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      transition: all var(--transition);
+      background: #fff;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .input-icon-wrapper {
+      position: relative;
+    }
+
+    .input-icon-wrapper i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--secondary);
+      font-size: 14px;
+    }
+
+    .input-icon-wrapper .form-input {
+      padding-left: 42px;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .spinner.hidden { display: none; }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ==================== HEADER ==================== */
+    .header {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-brand i {
+      font-size: 24px;
+      color: var(--primary);
+    }
+
+    .header-brand h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--light);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--secondary);
+    }
+
+    .user-badge i {
+      color: var(--primary);
+    }
+
+    /* ==================== MAIN LAYOUT ==================== */
+    .main-layout {
+      display: flex;
+      flex: 1;
+      position: relative;
+    }
+
+    /* ==================== SIDEBAR (Settings & Filters) ==================== */
+    .sidebar {
+      width: 320px;
+      background: #fff;
+      border-right: 1px solid var(--border);
+      height: calc(100vh - 64px);
+      position: sticky;
+      top: 64px;
+      overflow-y: auto;
+      transition: transform 0.3s ease, width 0.3s ease;
+    }
+
+    .sidebar.collapsed {
+      width: 0;
+      transform: translateX(-100%);
+      border: none;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-header h2 {
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-section {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--secondary);
+      margin-bottom: 16px;
+      letter-spacing: 0.5px;
+    }
+
+    .filter-group {
+      margin-bottom: 16px;
+    }
+
+    .filter-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .filter-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--dark);
+    }
+
+    .filter-input,
+    .filter-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      background: #fff;
+      transition: all var(--transition);
+    }
+
+    .filter-input:focus,
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .filter-actions .btn {
+      flex: 1;
+    }
+
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .toggle-group:last-child {
+      border-bottom: none;
+    }
+
+    .toggle-label {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: var(--border);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+
+    .toggle-switch.active {
+      background: var(--primary);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(20px);
+    }
+
+    /* ==================== CONTENT AREA ==================== */
+    .content {
+      flex: 1;
+      padding: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Toggle Sidebar Button */
+    .sidebar-toggle {
+      position: fixed;
+      left: 0;
+      top: 80px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 12px 8px;
+      border-radius: 0 8px 8px 0;
+      cursor: pointer;
+      z-index: 99;
+      transition: all var(--transition);
+      display: none;
+    }
+
+    .sidebar.collapsed + .content .sidebar-toggle,
+    .sidebar-toggle.visible {
+      display: block;
+    }
+
+    /* ==================== STATS GRID ==================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 16px;
+      cursor: pointer;
+      transition: all var(--transition);
+      border: 2px solid transparent;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .stat-card.active {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .stat-card h3 {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--secondary);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .stat-card p {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    /* ==================== ORDERS LIST ==================== */
+    .orders-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .orders-header h2 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .orders-count {
+      font-size: 13px;
+      color: var(--secondary);
+      background: var(--light);
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+
+    .orders-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .order-card {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      /* overflow: hidden; */
+      transition: all var(--transition);
+      border: 1px solid var(--border);
+    }
+
+    .order-card:hover {
+      box-shadow: var(--shadow);
+    }
+
+    .order-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      cursor: pointer;
+      background: #fff;
+      transition: background var(--transition);
+    }
+
+    .order-card-header:hover {
+      background: var(--light);
+    }
+
+    .order-main-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .order-number {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .order-customer {
+      font-size: 14px;
+      color: var(--dark);
+    }
+
+    .order-date {
+      font-size: 12px;
+      color: var(--secondary);
+    }
+
+    .order-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .order-total {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    .status-badge {
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      color: #fff;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .status-pending { background: var(--warning); color: #000; }
+    .status-processing { background: var(--info); }
+    .status-on-hold { background: #f97316; }
+    .status-on-delivery { background: #7c3aed; }
+    .status-delivered { background: #0ea5e9; }
+    .status-completed { background: var(--success); }
+    .status-cancelled { background: var(--danger); }
+    .status-refunded { background: #6b7280; }
+    .status-failed { background: #991b1b; }
+
+    .order-expand-icon {
+      font-size: 14px;
+      color: var(--secondary);
+      transition: transform var(--transition);
+      margin-left: 8px;
+    }
+
+    .order-card.expanded .order-expand-icon {
+      transform: rotate(180deg);
+    }
+
+    /* Quick Status Actions */
+    .quick-actions {
+      position: relative;
+    }
+
+    .quick-actions-trigger {
+      background: var(--light);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      transition: all var(--transition);
+    }
+
+    .quick-actions-trigger:hover {
+      background: var(--border);
+    }
+
+    .quick-actions-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 4px;
+      background: #fff;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+      min-width: 180px;
+      z-index: 50;
+      display: none;
+      overflow: hidden;
+    }
+
+    .quick-actions-dropdown.active {
+      display: block;
+    }
+
+    .quick-action-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background var(--transition);
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+
+    .quick-action-item:hover {
+      background: var(--light);
+    }
+
+    .quick-action-item .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    /* Order Body */
+    .order-card-body {
+      display: none;
+      border-top: 1px solid var(--border);
+    }
+
+    .order-card.expanded .order-card-body {
+      display: block;
+    }
+
+    .order-details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .detail-block {
+      background: var(--light);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+    }
+
+    .detail-block-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--secondary);
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 6px 0;
+    }
+
+    .detail-label {
+      color: var(--secondary);
+    }
+
+    .detail-value {
+      font-weight: 500;
+      color: var(--dark);
+    }
+
+    /* Products Mini List */
+    .products-mini-list {
+      margin-top: 8px;
+    }
+
+    .product-mini-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: 13px;
+    }
+
+    .product-mini-item:last-child {
+      border-bottom: none;
+    }
+
+    .product-mini-qty {
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* Order Actions Bar */
+    .order-actions-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 20px;
+      background: var(--light);
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .btn-edit { background: #10b981; }
+    .btn-copy { background: #fbbf24; color: #000; }
+    .btn-whatsapp { background: #25D366; }
+    .btn-location { background: #6366f1; }
+
+    /* ==================== EMPTY STATE ==================== */
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--secondary);
+    }
+
+    .empty-state i {
+      font-size: 64px;
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+
+    .empty-state h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: var(--dark);
+    }
+
+    .empty-state p {
+      font-size: 14px;
+    }
+
+    /* ==================== LOADING ==================== */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      backdrop-filter: blur(4px);
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    /* ==================== MODAL ==================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+      padding: 20px;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      max-width: 800px;
+      width: 100%;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--secondary);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all var(--transition);
+    }
+
+    .modal-close:hover {
+      background: var(--light);
+      color: var(--dark);
+    }
+
+    /* Modal Tabs */
+    .modal-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: var(--light);
+      padding: 10px 5px;
+    }
+
+    .modal-tab {
+      padding: 14px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--secondary);
+      cursor: pointer;
+      /* border-bottom: 2px solid transparent; */
+      transition: all var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border-left: none;
+      border-right: none;
+      border-top: none;
+    }
+
+    .modal-tab:hover {
+      color: var(--primary);
+    }
+
+    .modal-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+    }
+
+    .modal-tab-content {
+      display: none;
+    }
+
+    .modal-tab-content.active {
+      display: block;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      background: var(--light);
+    }
+
+    /* Form Elements in Modal */
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .form-field {
+      margin-bottom: 16px;
+    }
+
+    .form-field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--secondary);
+    }
+
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      transition: all var(--transition);
+    }
+
+    .form-field input:focus,
+    .form-field select:focus,
+    .form-field textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .form-field textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* Section Title in Modal */
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--primary);
+      display: inline-block;
+    }
+
+    .section-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+    }
+
+    /* Address Cards */
+    .address-card {
+      background: var(--light);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      cursor: pointer;
+      transition: all var(--transition);
+      margin-bottom: 12px;
+    }
+
+    .address-card:hover {
+      border-color: var(--primary);
+    }
+
+    .address-card.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .address-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .address-card-detail {
+      font-size: 12px;
+      color: var(--secondary);
+    }
+
+    /* Products Table */
+    .products-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .products-table th {
+      text-align: left;
+      padding: 12px;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--secondary);
+      font-weight: 700;
+      border-bottom: 2px solid var(--border);
+      background: var(--light);
+    }
+
+    .products-table td {
+      padding: 12px;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .products-table tr:hover td {
+      background: var(--light);
+    }
+
+    .product-name {
+      font-weight: 500;
+    }
+
+    .product-id {
+      font-size: 11px;
+      color: var(--secondary);
+    }
+
+    .qty-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .qty-input {
+      width: 60px;
+      text-align: center;
+      padding: 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    /* Product Search */
+    .product-search-container {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .product-search-input {
+      width: 100%;
+      padding: 12px 16px 12px 44px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+    }
+
+    .product-search-input:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    .product-search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--secondary);
+    }
+
+    .product-search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg);
+      max-height: 250px;
+      overflow-y: auto;
+      z-index: 10;
+      display: none;
+    }
+
+    .product-search-results.active {
+      display: block;
+    }
+
+    .product-search-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 16px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition);
+    }
+
+    .product-search-item:hover {
+      background: var(--light);
+    }
+
+    .product-search-item:last-child {
+      border-bottom: none;
+    }
+
+    /* New Products List */
+    .new-products-list {
+      background: #e8f5e9;
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      margin-top: 16px;
+    }
+
+    .new-products-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--success);
+      margin-bottom: 8px;
+    }
+
+    .new-product-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      font-size: 13px;
+      border-bottom: 1px dashed #a5d6a7;
+    }
+
+    .new-product-item:last-child {
+      border-bottom: none;
+    }
+
+    /* Invoice Preview */
+    .invoice-preview {
+      background: var(--light);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .invoice-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .invoice-row:last-child {
+      border-bottom: none;
+    }
+
+    .invoice-row.total {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--primary);
+      padding-top: 16px;
+      margin-top: 8px;
+      border-top: 2px solid var(--primary);
+    }
+
+    /* Coupon Section */
+    .coupon-section {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .coupon-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #856404;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .coupon-input-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .coupon-input-group input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #ffc107;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 992px) {
+      .sidebar {
+        width: 100%;
+        position: fixed;
+        left: 100%;
+        top: 64px;
+        height: calc(100vh - 64px);
+        z-index: 99;
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-toggle {
+        display: block;
+      }
+
+      .content {
+        padding: 16px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        padding: 0 16px;
+      }
+
+      .header-brand h1 {
+        display: none;
+      }
+
+      .order-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .order-meta {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .order-details-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal {
+        max-height: 100vh;
+        border-radius: 0;
+      }
+
+      .modal-tabs {
+        overflow-x: auto;
+        padding: 0 16px;
+      }
+
+      .modal-tab {
+        white-space: nowrap;
+        padding: 12px 16px;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <!-- Global Loading -->
+  <div id="globalLoading" class="loading-overlay">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <!-- ==================== LOGIN SCREEN ==================== -->
+  <section id="screen-login" class="screen active">
+    <div class="login-screen">
+      <div class="login-card">
+        <div class="login-logo">
+          <i class="fa-solid fa-boxes-stacked"></i>
+          <h1>Orders Dashboard</h1>
+          <p>Staff Portal - SHRMS Authentication</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="loginPhone">Phone Number</label>
+          <div class="input-icon-wrapper">
+            <i class="fa-solid fa-phone"></i>
+            <input id="loginPhone" type="tel" class="form-input" placeholder="+20 1XXXXXXXXX">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="loginPassword">Password</label>
+          <div class="input-icon-wrapper">
+            <i class="fa-solid fa-lock"></i>
+            <input id="loginPassword" type="password" class="form-input" placeholder="Enter your password">
+          </div>
+        </div>
+
+        <button id="loginBtn" class="btn btn-login">
+          <span>Sign In</span>
+          <span id="loginSpinner" class="spinner hidden"></span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== ORDERS SCREEN ==================== -->
+  <section id="screen-orders" class="screen">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <button class="btn btn-ghost btn-icon" id="sidebarToggleBtn">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="header-brand">
+          <i class="fa-solid fa-boxes-stacked"></i>
+          <h1>Orders Management</h1>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="user-badge" id="employeeBadge">
+          <i class="fa-solid fa-user-circle"></i>
+          <span id="employeeName">Staff</span>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="refreshBtn">
+          <i class="fa-solid fa-rotate"></i>
+          <span>Refresh</span>
+        </button>
+        <button class="btn btn-ghost btn-icon" id="logoutBtn" title="Logout">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="main-layout">
+      <!-- Sidebar: Filters & Settings -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <h2><i class="fa-solid fa-sliders"></i> Filters & Settings</h2>
+          <button class="btn btn-ghost btn-icon" id="sidebarCloseBtn">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- Search Filter -->
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Search</div>
+          <div class="filter-group">
+            <input id="filterSearch" type="text" class="filter-input" placeholder="Customer name, email, or phone...">
+          </div>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Status</div>
+          <div class="filter-group">
+            <select id="filterStatus" class="filter-select">
+              <option value="">All Statuses</option>
+              <option value="pending">Pending Payment</option>
+              <option value="processing">Processing</option>
+              <option value="on-hold">On Hold</option>
+              <option value="on-delivery">On Delivery</option>
+              <option value="delivered">Delivered</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="refunded">Refunded</option>
+              <option value="failed">Failed</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Date Range -->
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Date Range</div>
+          <div class="filter-group">
+            <label class="filter-label">From</label>
+            <input id="filterDateFrom" type="date" class="filter-input">
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">To</label>
+            <input id="filterDateTo" type="date" class="filter-input">
+          </div>
+          <div class="filter-actions">
+            <button class="btn btn-sm" id="applyFiltersBtn">
+              <i class="fa-solid fa-check"></i> Apply
+            </button>
+            <button class="btn btn-secondary btn-sm" id="clearFiltersBtn">
+              <i class="fa-solid fa-xmark"></i> Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Settings</div>
+          <div class="toggle-group">
+            <span class="toggle-label">Debug Mode</span>
+            <div class="toggle-switch" id="debugToggle"></div>
+          </div>
+          <div class="toggle-group">
+            <span class="toggle-label">Auto Refresh</span>
+            <div class="toggle-switch" id="autoRefreshToggle"></div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="content">
+        <!-- Mobile Sidebar Toggle -->
+        <button class="sidebar-toggle" id="mobileSidebarToggle">
+          <i class="fa-solid fa-filter"></i>
+        </button>
+
+        <!-- Stats Grid -->
+        <section class="stats-grid" id="statsContainer"></section>
+
+        <!-- Orders List -->
+        <section>
+          <div class="orders-header">
+            <h2>Orders</h2>
+            <span class="orders-count" id="ordersCount">0 orders</span>
+          </div>
+          <div id="ordersList" class="orders-list"></div>
+        </section>
+      </main>
+    </div>
+  </section>
+
+  <!-- ==================== EDIT ORDER MODAL ==================== -->
+  <div id="editOrderBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="editOrderTitle">Edit Order #</h3>
+        <button class="modal-close" id="editOrderCloseBtn">&times;</button>
+      </div>
+
+      <!-- Modal Tabs -->
+      <div class="modal-tabs">
+        <button class="modal-tab active" data-tab="general">
+          <i class="fa-solid fa-circle-info"></i> General
+        </button>
+        <button class="modal-tab" data-tab="address">
+          <i class="fa-solid fa-location-dot"></i> Address
+        </button>
+        <button class="modal-tab" data-tab="products">
+          <i class="fa-solid fa-box"></i> Products
+        </button>
+        <button class="modal-tab" data-tab="invoice">
+          <i class="fa-solid fa-file-invoice"></i> Invoice
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Tab: General -->
+        <div class="modal-tab-content active" id="tab-general">
+          <div class="section-title">Order Status</div>
+          <div class="form-field">
+            <label for="editStatus">Current Status</label>
+            <select id="editStatus">
+              <option value="pending">Pending Payment</option>
+              <option value="processing">Processing</option>
+              <option value="on-hold">On Hold</option>
+              <option value="on-delivery">On Delivery</option>
+              <option value="delivered">Delivered</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="refunded">Refunded</option>
+              <option value="failed">Failed</option>
+            </select>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="section-title">Customer Information</div>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="editFirstName">First Name</label>
+              <input id="editFirstName" type="text">
+            </div>
+            <div class="form-field">
+              <label for="editLastName">Last Name</label>
+              <input id="editLastName" type="text">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="editPhone">Phone</label>
+              <input id="editPhone" type="tel">
+            </div>
+            <div class="form-field">
+              <label for="editPhoneSecondary">Secondary Phone</label>
+              <input id="editPhoneSecondary" type="tel">
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="section-title">Delivery Schedule</div>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="editDeliveryDate">Delivery Date</label>
+              <input id="editDeliveryDate" type="date">
+            </div>
+            <div class="form-field">
+              <label for="editDeliveryTime">Delivery Time</label>
+              <input id="editDeliveryTime" type="text" placeholder="e.g. 2 PM - 4 PM">
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="section-title">Notes</div>
+          <div class="form-field">
+            <label for="editNotesCustomer">Customer Notes</label>
+            <textarea id="editNotesCustomer" rows="2"></textarea>
+          </div>
+          <div class="form-field">
+            <label for="editNotesInternal">Internal Notes (Admin Only)</label>
+            <textarea id="editNotesInternal" rows="2"></textarea>
+          </div>
+        </div>
+
+        <!-- Tab: Address -->
+        <div class="modal-tab-content" id="tab-address">
+          <!-- Saved Addresses -->
+          <div class="section-title">Saved Addresses</div>
+          <div class="form-field">
+            <label for="editSavedAddress">Select a saved address</label>
+            <select id="editSavedAddress">
+              <option value="">Keep current address</option>
+            </select>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="assignSavedAddressBtn" style="margin-bottom: 20px;">
+            <i class="fa-solid fa-check"></i> Apply Selected Address
+          </button>
+
+          <div class="section-divider"></div>
+
+          <!-- Current Address -->
+          <div class="section-title">Current Address Details</div>
+          <div class="form-field">
+            <label for="editAddressName">Address Label</label>
+            <input id="editAddressName" type="text" placeholder="e.g. Home, Office">
+          </div>
+          <div class="form-field">
+            <label for="editAddress1">Address Line 1</label>
+            <input id="editAddress1" type="text">
+          </div>
+          <div class="form-field">
+            <label for="editAddress2">Address Line 2</label>
+            <input id="editAddress2" type="text" placeholder="Apartment, floor, landmark">
+          </div>
+          <div class="form-field">
+            <label for="editZoneSelect">Zone / City</label>
+            <select id="editZoneSelect">
+              <option value="">Select zone</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="editLocationUrl">Location (Google Maps URL)</label>
+            <input id="editLocationUrl" type="text" placeholder="https://www.google.com/maps?q=...">
+          </div>
+
+          <button class="btn btn-secondary" id="updateCustomerAddressBtn" style="margin-top: 16px;">
+            <i class="fa-solid fa-floppy-disk"></i> Update Customer Address in System
+          </button>
+        </div>
+
+        <!-- Tab: Products -->
+        <div class="modal-tab-content" id="tab-products">
+          <div class="section-title">Current Products</div>
+          <div id="editProductsList"></div>
+
+          <div class="section-divider"></div>
+
+          <div class="section-title">Add New Product</div>
+          <div class="product-search-container">
+            <i class="fa-solid fa-search product-search-icon"></i>
+            <input type="text" id="addProductSearch" class="product-search-input" placeholder="Search products by name...">
+            <div id="addProductResults" class="product-search-results"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label>Selected Product</label>
+              <div id="addProductSelectedLabel" style="padding: 10px; background: var(--light); border-radius: 6px; font-size: 13px; color: var(--secondary);">
+                No product selected
+              </div>
+              <input type="hidden" id="addProductId">
+            </div>
+            <div class="form-field">
+              <label for="addProductQty">Quantity</label>
+              <input type="number" id="addProductQty" min="1" value="1">
+            </div>
+          </div>
+
+          <button class="btn btn-success btn-sm" id="addProductToOrderBtn">
+            <i class="fa-solid fa-plus"></i> Add Product to Order
+          </button>
+
+          <div id="editNewProductsList" class="new-products-list" style="display: none;"></div>
+        </div>
+
+        <!-- Tab: Invoice -->
+        <div class="modal-tab-content" id="tab-invoice">
+          <!-- Coupon Section -->
+          <div class="coupon-section">
+            <div class="coupon-section-title">
+              <i class="fa-solid fa-ticket"></i> Apply Coupon
+            </div>
+            <div class="coupon-input-group">
+              <input type="text" id="editCouponCode" placeholder="Enter coupon code">
+              <button class="btn btn-sm" id="applyCouponBtn">Apply</button>
+              <button class="btn btn-secondary btn-sm" id="removeCouponBtn">Remove</button>
+            </div>
+          </div>
+
+          <!-- Invoice Preview -->
+          <div class="section-title">Invoice Summary</div>
+          <div class="invoice-preview">
+            <div class="invoice-row">
+              <span>Subtotal</span>
+              <span id="previewSubtotal">0.00 EGP</span>
+            </div>
+            <div class="invoice-row">
+              <span>Shipping</span>
+              <span id="previewShipping">0.00 EGP</span>
+            </div>
+            <div class="invoice-row">
+              <span>Fees</span>
+              <span id="previewFees">0.00 EGP</span>
+            </div>
+            <div class="invoice-row">
+              <span>Discount</span>
+              <span id="previewDiscount" style="color: var(--success);">-0.00 EGP</span>
+            </div>
+            <div class="invoice-row total">
+              <span>Total</span>
+              <span id="previewTotal">0.00 EGP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="editOrderCancelBtn">Cancel</button>
+        <button class="btn" id="editOrderSaveBtn">
+          <i class="fa-solid fa-floppy-disk"></i> Save Order
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  // ==================== CONFIG ====================
+  const API_BASE = 'https://darkviolet-antelope-523488.hostingersite.com';
+  const SHRMS_LOGIN_ENDPOINT = '/wp-json/shrms/v1/auth/login';
+  const WC_API_BASE = '/wp-json/wc/v3';
+  const STORAGE_KEY = 'shrms_auth_orders_dashboard';
+  const SETTINGS_KEY = 'orders_dashboard_settings';
+
+  // ==================== STATE ====================
+  const state = {
+    token: null,
+    employee: null,
+    orders: [],
+    filters: {
+      search: '',
+      status: '',
+      dateFrom: '',
+      dateTo: ''
+    },
+    debug: true,
+    autoRefresh: false,
+    autoRefreshInterval: null,
+    editOrder: null,
+    editQuantities: {},
+    editIsFfOrder: false,
+    editSclAddressId: null,
+    editLocationUrl: '',
+    editLocationLat: '',
+    editLocationLng: '',
+    editNewProducts: [],
+    editWarehouseId: null,
+    editAddresses: []
+  };
+
+  // ==================== HELPERS ====================
+  function $(id) { return document.getElementById(id); }
+  function $$(selector) { return document.querySelectorAll(selector); }
+
+  function showScreen(id) {
+    $$('.screen').forEach(s => s.classList.remove('active'));
+    $(id).classList.add('active');
+  }
+
+  function setGlobalLoading(visible) {
+    const el = $('globalLoading');
+    if (visible) el.classList.add('active');
+    else el.classList.remove('active');
+  }
+
+  function log(category, message, data = null) {
+    if (!state.debug) return;
+    const time = new Date().toISOString().split('T')[1].split('.')[0];
+    console.log(`[${time}] [${category}] ${message}`, data || '');
+  }
+
+  function showToast(message, type = 'success') {
+    Swal.fire({
+      title: type === 'error' ? 'Error' :
+             type === 'warning' ? 'Warning' :
+             type === 'info' ? 'Info' : 'Success',
+      text: message,
+      icon: type,
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 2500,
+      timerProgressBar: true
+    });
+  }
+
+  function authHeaders() {
+    return state.token ? { 'Authorization': 'Bearer ' + state.token } : {};
+  }
+
+  async function apiFetch(url, options = {}) {
+    const finalOptions = {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options.headers || {}),
+        ...authHeaders()
+      }
+    };
+    log('api', 'Request', { url, options: finalOptions });
+    const res = await fetch(url, finalOptions);
+    if (!res.ok) {
+      let msg = 'HTTP ' + res.status;
+      try {
+        const data = await res.json();
+        if (data && data.message) msg = data.message;
+        log('api', 'Error response JSON', data);
+      } catch (e) {
+        const text = await res.text();
+        log('api', 'Error response text', text);
+      }
+      throw new Error(msg);
+    }
+    const json = await res.json();
+    log('api', 'Response', json);
+    return json;
+  }
+
+  async function loadZonesForDashboard() {
+    const url = `${API_BASE}/wp-json/scl/v1/zones?active_only=true`;
+    try {
+      const response = await apiFetch(url, { method: 'GET' });
+      if (!response.success || !response.data) {
+        throw new Error('Failed to load zones');
+      }
+      return response.data;
+    } catch (error) {
+      console.error('Dashboard: Failed to load zones', error);
+      return [];
+    }
+  }
+
+  async function triggerWarehouseRecalc(orderId) {
+    const url = `${API_BASE}/wp-json/ff/v1/orders/${orderId}/recalculate`;
+    log('ff', 'Trigger warehouse recalculation start', { orderId, url });
+    try {
+      const response = await apiFetch(url, {
+        method: 'POST',
+        body: JSON.stringify({ order_id: orderId })
+      });
+      log('ff', 'Warehouse recalculation response', response);
+      return response;
+    } catch (error) {
+      log('ff', 'Warehouse recalculation failed', { orderId, error });
+      showToast('Warehouse recalculation failed: ' + error.message, 'warning');
+      return null;
+    }
+  }
+
+  // ==================== STORAGE ====================
+  const Storage = {
+    saveAuth(authData) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          token: authData.token,
+          employee: authData.employee,
+          timestamp: Date.now()
+        }));
+      } catch (e) {
+        console.error('Failed to save auth', e);
+      }
+    },
+    loadAuth() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        const age = Date.now() - parsed.timestamp;
+        const maxAge = 30 * 24 * 60 * 60 * 1000;
+        if (age > maxAge) {
+          localStorage.removeItem(STORAGE_KEY);
+          return null;
+        }
+        return parsed;
+      } catch (e) {
+        console.error('Failed to load auth', e);
+        return null;
+      }
+    },
+    clearAuth() {
+      localStorage.removeItem(STORAGE_KEY);
+    },
+    saveSettings(settings) {
+      try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+      } catch (e) {
+        console.error('Failed to save settings', e);
+      }
+    },
+    loadSettings() {
+      try {
+        const raw = localStorage.getItem(SETTINGS_KEY);
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch (e) {
+        console.error('Failed to load settings', e);
+        return null;
+      }
+    }
+  };
+
+  // ==================== AUTH ====================
+  async function login(phone, password) {
+    return apiFetch(API_BASE + SHRMS_LOGIN_ENDPOINT, {
+      method: 'POST',
+      body: JSON.stringify({ phone, password })
+    });
+  }
+
+  async function handleLogin() {
+    const phone = $('loginPhone').value.trim();
+    const password = $('loginPassword').value;
+    if (!phone || !password) {
+      showToast('Please enter phone and password', 'warning');
+      return;
+    }
+    const btn = $('loginBtn');
+    const spinner = $('loginSpinner');
+    btn.disabled = true;
+    spinner.classList.remove('hidden');
+    try {
+      const response = await login(phone, password);
+      log('auth', 'Login response', response);
+      if (!response.success || !response.data || !response.data.token) {
+        throw new Error(response.message || 'Login failed');
+      }
+      state.token = response.data.token;
+      state.employee = response.data.employee;
+      Storage.saveAuth({
+        token: state.token,
+        employee: state.employee
+      });
+      $('employeeName').textContent = state.employee.name || 'Staff';
+      showToast('Signed in successfully', 'success');
+      showScreen('screen-orders');
+      await loadOrders();
+    } catch (error) {
+      console.error('Login error', error);
+      showToast(error.message, 'error');
+    } finally {
+      btn.disabled = false;
+      spinner.classList.add('hidden');
+    }
+  }
+
+  async function tryAutoLogin() {
+    const stored = Storage.loadAuth();
+    if (!stored || !stored.token) {
+      showScreen('screen-login');
+      return;
+    }
+    state.token = stored.token;
+    state.employee = stored.employee;
+    $('employeeName').textContent = state.employee?.name || 'Staff';
+    showScreen('screen-orders');
+    showToast('Auto-login successful', 'info');
+    await loadOrders();
+  }
+
+  function handleLogout() {
+    Storage.clearAuth();
+    state.token = null;
+    state.employee = null;
+    state.orders = [];
+    $('ordersList').innerHTML = '';
+    $('filterSearch').value = '';
+    $('filterStatus').value = '';
+    $('filterDateFrom').value = '';
+    $('filterDateTo').value = '';
+    showScreen('screen-login');
+    showToast('Signed out', 'success');
+  }
+
+  // ==================== ORDERS ====================
+  async function loadOrders() {
+    if (!state.token) {
+      showToast('Please sign in first', 'warning');
+      showScreen('screen-login');
+      return;
+    }
+    const { search, status, dateFrom, dateTo } = state.filters;
+    setGlobalLoading(true);
+    try {
+      const url = new URL(API_BASE + WC_API_BASE + '/orders');
+      url.searchParams.set('per_page', '100');
+      url.searchParams.set('orderby', 'date');
+      url.searchParams.set('order', 'desc');
+      if (status) url.searchParams.set('status', status);
+      if (search) url.searchParams.set('search', search);
+      if (dateFrom) url.searchParams.set('after', dateFrom + 'T00:00:00');
+      if (dateTo) url.searchParams.set('before', dateTo + 'T23:59:59');
+      log('orders', 'Loading orders from', url.toString());
+      const orders = await apiFetch(url.toString());
+      state.orders = Array.isArray(orders) ? orders : [];
+      renderStats();
+      renderOrders();
+      $('ordersCount').textContent = state.orders.length + ' orders';
+      log('orders', 'Orders loaded count', state.orders.length);
+    } catch (error) {
+      console.error('Failed to load orders', error);
+      showToast(error.message || 'Failed to load orders', 'error');
+      $('ordersList').innerHTML = `
+        <div class="empty-state">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <h3>Failed to load orders</h3>
+          <p>Check console for details.</p>
+        </div>
+      `;
+    } finally {
+      setGlobalLoading(false);
+    }
+  }
+
+  function applyFilters() {
+    state.filters.search = $('filterSearch').value.trim();
+    state.filters.status = $('filterStatus').value;
+    state.filters.dateFrom = $('filterDateFrom').value;
+    state.filters.dateTo = $('filterDateTo').value;
+    // Save filters to localStorage
+    Storage.saveSettings({
+      debug: state.debug,
+      autoRefresh: state.autoRefresh,
+      filters: state.filters
+    });
+    log('filters', 'Applying filters', state.filters);
+    loadOrders();
+  }
+
+  function clearFilters() {
+    $('filterSearch').value = '';
+    $('filterStatus').value = '';
+    $('filterDateFrom').value = '';
+    $('filterDateTo').value = '';
+    state.filters = { search: '', status: '', dateFrom: '', dateTo: '' };
+    Storage.saveSettings({
+      debug: state.debug,
+      autoRefresh: state.autoRefresh,
+      filters: state.filters
+    });
+    log('filters', 'Cleared filters');
+    loadOrders();
+  }
+
+  function renderStats() {
+    const container = $('statsContainer');
+    container.innerHTML = '';
+    if (state.orders.length === 0) return;
+    const statusCounts = {};
+    state.orders.forEach(o => {
+      statusCounts[o.status] = (statusCounts[o.status] || 0) + 1;
+    });
+    const statuses = [
+      { key: 'pending', label: 'Pending' },
+      { key: 'processing', label: 'Processing' },
+      { key: 'on-hold', label: 'On Hold' },
+      { key: 'on-delivery', label: 'On Delivery' },
+      { key: 'delivered', label: 'Delivered' },
+      { key: 'completed', label: 'Completed' },
+      { key: 'cancelled', label: 'Cancelled' },
+      { key: 'refunded', label: 'Refunded' },
+      { key: 'failed', label: 'Failed' }
+    ];
+    statuses.forEach(st => {
+      const count = statusCounts[st.key] || 0;
+      if (count === 0) return;
+      const card = document.createElement('div');
+      card.className = 'stat-card' + (state.filters.status === st.key ? ' active' : '');
+      card.innerHTML = `
+        <h3>${st.label}</h3>
+        <p>${count}</p>
+      `;
+      card.onclick = () => {
+        if (state.filters.status === st.key) {
+          state.filters.status = '';
+          $('filterStatus').value = '';
+        } else {
+          state.filters.status = st.key;
+          $('filterStatus').value = st.key;
+        }
+        log('stats', 'Status filter via stats card', state.filters.status);
+        loadOrders();
+      };
+      container.appendChild(card);
+    });
+  }
+
+  function renderOrders() {
+    const container = $('ordersList');
+    container.innerHTML = '';
+    if (state.orders.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <i class="fa-solid fa-box-open"></i>
+          <h3>No orders found</h3>
+          <p>Try adjusting your filters or check back later.</p>
+        </div>
+      `;
+      return;
+    }
+    state.orders.forEach(order => {
+      const card = document.createElement('div');
+      card.className = 'order-card';
+      card.dataset.orderId = order.id;
+      const billing = order.billing || {};
+      const name = `${billing.first_name || ''} ${billing.last_name || ''}`.trim() || 'Unknown customer';
+      const created = order.date_created ? new Date(order.date_created).toLocaleString() : 'N/A';
+      const total = parseFloat(order.total || 0).toFixed(2) + ' ' + (order.currency || 'EGP');
+
+      const productsHTML = (order.line_items || []).map(item => `
+        <div class="product-mini-item">
+          <span>${item.name || 'Product'}</span>
+          <span class="product-mini-qty">x${item.quantity}</span>
+        </div>
+      `).join('') || '<div style="font-size:12px;color:var(--secondary);">No products</div>';
+
+      card.innerHTML = `
+        <div class="order-card-header">
+          <div class="order-main-info">
+            <div>
+              <div class="order-number">Order #${order.id}</div>
+              <div class="order-customer">${name}</div>
+              <div class="order-date">${created}</div>
+            </div>
+          </div>
+          <div class="order-meta">
+            <span class="status-badge status-${order.status}">${order.status}</span>
+            <span class="order-total">${total}</span>
+            <div class="quick-actions">
+              <div class="quick-actions-trigger" data-order-id="${order.id}">
+                <i class="fa-solid fa-bolt"></i>
+                <i class="fa-solid fa-chevron-down" style="font-size: 10px;"></i>
+              </div>
+              <div class="quick-actions-dropdown" id="quickActions-${order.id}">
+                <button class="quick-action-item" data-status="processing" data-order-id="${order.id}">
+                  <span class="status-dot" style="background: var(--info);"></span> Processing
+                </button>
+                <button class="quick-action-item" data-status="on-delivery" data-order-id="${order.id}">
+                  <span class="status-dot" style="background: #7c3aed;"></span> On Delivery
+                </button>
+                <button class="quick-action-item" data-status="delivered" data-order-id="${order.id}">
+                  <span class="status-dot" style="background: #0ea5e9;"></span> Delivered
+                </button>
+                <button class="quick-action-item" data-status="completed" data-order-id="${order.id}">
+                  <span class="status-dot" style="background: var(--success);"></span> Completed
+                </button>
+                <button class="quick-action-item" data-status="cancelled" data-order-id="${order.id}">
+                  <span class="status-dot" style="background: var(--danger);"></span> Cancelled
+                </button>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-down order-expand-icon"></i>
+          </div>
+        </div>
+        <div class="order-card-body">
+          <div class="order-details-grid">
+            <div class="detail-block">
+              <div class="detail-block-title"><i class="fa-solid fa-user"></i> Customer</div>
+              <div class="detail-row">
+                <span class="detail-label">Name</span>
+                <span class="detail-value">${name}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Email</span>
+                <span class="detail-value">${billing.email || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Phone</span>
+                <span class="detail-value">${billing.phone || 'N/A'}</span>
+              </div>
+            </div>
+            <div class="detail-block">
+              <div class="detail-block-title"><i class="fa-solid fa-location-dot"></i> Address</div>
+              <div class="detail-row">
+                <span class="detail-label">Address</span>
+                <span class="detail-value">${billing.address_1 || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Zone</span>
+                <span class="detail-value">${billing.zone || billing.city || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Country</span>
+                <span class="detail-value">${billing.country || 'N/A'}</span>
+              </div>
+            </div>
+            <div class="detail-block">
+              <div class="detail-block-title"><i class="fa-solid fa-receipt"></i> Order Info</div>
+              <div class="detail-row">
+                <span class="detail-label">Total</span>
+                <span class="detail-value">${total}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Payment</span>
+                <span class="detail-value">${order.payment_method_title || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Status</span>
+                <span class="detail-value" style="text-transform: capitalize;">${order.status}</span>
+              </div>
+            </div>
+            <div class="detail-block">
+              <div class="detail-block-title"><i class="fa-solid fa-box"></i> Products (${(order.line_items || []).length})</div>
+              <div class="products-mini-list">
+                ${productsHTML}
+              </div>
+            </div>
+          </div>
+          <div class="order-actions-bar">
+            <button class="btn btn-sm btn-edit" data-action="edit" data-order-id="${order.id}">
+              <i class="fa-solid fa-pen-to-square"></i> Edit
+            </button>
+            <button class="btn btn-sm btn-copy" data-action="copy" data-order-id="${order.id}">
+              <i class="fa-solid fa-copy"></i> Copy Address
+            </button>
+            <button class="btn btn-sm btn-whatsapp" data-action="whatsapp" data-order-id="${order.id}">
+              <i class="fa-brands fa-whatsapp"></i> WhatsApp
+            </button>
+            ${billing.location_url ? `
+            <button class="btn btn-sm btn-location" data-action="location" data-url="${billing.location_url}">
+              <i class="fa-solid fa-map-marker-alt"></i> Location
+            </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+
+    // Attach event listeners
+    attachOrderCardListeners();
+  }
+
+  function attachOrderCardListeners() {
+    // Expand/Collapse
+    $$('.order-card-header').forEach(header => {
+      header.addEventListener('click', (e) => {
+        // Don't expand if clicking on quick actions
+        if (e.target.closest('.quick-actions')) return;
+        const card = header.closest('.order-card');
+        card.classList.toggle('expanded');
+      });
+    });
+
+    // Quick Actions Trigger
+    $$('.quick-actions-trigger').forEach(trigger => {
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const orderId = trigger.dataset.orderId;
+        const dropdown = $(`quickActions-${orderId}`);
+        // Close all other dropdowns
+        $$('.quick-actions-dropdown.active').forEach(d => {
+          if (d.id !== `quickActions-${orderId}`) d.classList.remove('active');
+        });
+        dropdown.classList.toggle('active');
+      });
+    });
+
+    // Quick Action Items
+    $$('.quick-action-item').forEach(item => {
+      item.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const orderId = parseInt(item.dataset.orderId);
+        const newStatus = item.dataset.status;
+        await quickUpdateStatus(orderId, newStatus);
+        // Close dropdown
+        item.closest('.quick-actions-dropdown').classList.remove('active');
+      });
+    });
+
+    // Action buttons
+    $$('[data-action="edit"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openEditOrder(parseInt(btn.dataset.orderId));
+      });
+    });
+
+    $$('[data-action="copy"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const order = state.orders.find(o => o.id === parseInt(btn.dataset.orderId));
+        if (order) {
+          const text = formatAddressForCopy(order);
+          navigator.clipboard.writeText(text).then(() => {
+            showToast('Address copied to clipboard', 'success');
+          }).catch(() => {
+            showToast('Failed to copy address', 'error');
+          });
+        }
+      });
+    });
+
+    $$('[data-action="whatsapp"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const order = state.orders.find(o => o.id === parseInt(btn.dataset.orderId));
+        if (order) {
+          const billing = order.billing || {};
+          const phoneRaw = billing.phone || '';
+          if (!phoneRaw) {
+            showToast('Customer phone not available', 'error');
+            return;
+          }
+          const name = `${billing.first_name || ''} ${billing.last_name || ''}`.trim();
+          const msg = `Hello ${name}, your order #${order.id} is being processed.`;
+          const phone = phoneRaw.replace(/[^0-9+]/g, '');
+          const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+          window.open(url, '_blank');
+        }
+      });
+    });
+
+    $$('[data-action="location"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const url = btn.dataset.url;
+        if (url) window.open(url, '_blank');
+      });
+    });
+  }
+
+  async function quickUpdateStatus(orderId, newStatus) {
+    setGlobalLoading(true);
+    try {
+      const order = state.orders.find(o => o.id === orderId);
+      if (!order) throw new Error('Order not found');
+
+      const isFfOrder = Array.isArray(order.meta_data) &&
+        (order.meta_data.some(m => m.key === '_ffw_warehouse_id') ||
+         order.meta_data.some(m => m.key === '_billing_zone'));
+
+      let url;
+      if (isFfOrder) {
+        url = `${API_BASE}/wp-json/ff/v1/orders/${orderId}`;
+      } else {
+        url = `${API_BASE}${WC_API_BASE}/orders/${orderId}`;
+      }
+
+      await apiFetch(url, {
+        method: 'PUT',
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      showToast(`Order #${orderId} updated to ${newStatus}`, 'success');
+      await loadOrders();
+    } catch (error) {
+      console.error('Failed to update status', error);
+      showToast(error.message || 'Failed to update status', 'error');
+    } finally {
+      setGlobalLoading(false);
+    }
+  }
+
+  function formatAddressForCopy(order) {
+    const billing = order.billing || {};
+    const name = `${billing.first_name || ''} ${billing.last_name || ''}`.trim();
+    const phone = billing.phone || '';
+    const address = billing.address_1 || '';
+    const city = billing.zone || billing.city || '';
+    const country = billing.country || '';
+    return [
+      `Order #${order.id}`,
+      name ? `Name: ${name}` : '',
+      phone ? `Phone: ${phone}` : '',
+      address ? `Address: ${address}` : '',
+      city ? `Zone / City: ${city}` : '',
+      country ? `Country: ${country}` : ''
+    ].filter(Boolean).join('\n');
+  }
+
+  async function loadCustomerAddressesForEdit(order) {
+    const customerId = order.customer_id;
+    const select = $('editSavedAddress');
+    if (!select) return;
+    select.innerHTML = '<option value="">Keep current address</option>';
+    if (!customerId) {
+      select.disabled = true;
+      return;
+    }
+    try {
+      const url = `${API_BASE}/wp-json/scl/v1/users/${customerId}/addresses`;
+      const res = await apiFetch(url, { method: 'GET' });
+      const addresses = (res && res.data) || [];
+      state.editAddresses = Array.isArray(addresses) ? addresses : [];
+      if (!state.editAddresses.length) {
+        select.disabled = true;
+        return;
+      }
+      state.editAddresses.forEach(addr => {
+        const opt = document.createElement('option');
+        opt.value = addr.id;
+        opt.textContent = `${addr.address_name} - ${addr.zone || ''}`.trim();
+        select.appendChild(opt);
+      });
+      select.value = '';
+      select.disabled = false;
+    } catch (error) {
+      log('edit', 'Failed to load customer addresses', error);
+      select.disabled = true;
+    }
+  }
+
+  // ==================== EDIT ORDER ====================
+  function openEditOrder(orderId) {
+    const order = state.orders.find(o => o.id === orderId);
+    if (!order) {
+      showToast('Order not found in memory', 'error');
+      return;
+    }
+
+    const isFfOrder = Array.isArray(order.meta_data) &&
+      (order.meta_data.some(m => m.key === '_ffw_warehouse_id') ||
+       order.meta_data.some(m => m.key === '_billing_zone'));
+
+    state.editOrder = order;
+    state.editIsFfOrder = isFfOrder;
+
+    let warehouseId = null;
+    if (Array.isArray(order.meta_data)) {
+      const metaWh = order.meta_data.find(m => m.key === '_ffw_warehouse_id');
+      if (metaWh && metaWh.value) {
+        const parsed = parseInt(metaWh.value, 10);
+        if (!isNaN(parsed) && parsed > 0) {
+          warehouseId = parsed;
+        }
+      }
+    }
+    state.editWarehouseId = warehouseId;
+
+    log('edit', 'Open edit order', { order, isFfOrder, warehouseId });
+
+    state.editQuantities = {};
+    state.editNewProducts = [];
+    renderNewProductsList();
+
+    $('editOrderTitle').textContent = `Edit Order #${order.id}`;
+    $('editStatus').value = order.status || 'processing';
+
+    const billing = order.billing || {};
+    $('editFirstName').value = billing.first_name || '';
+    $('editLastName').value = billing.last_name || '';
+    $('editPhone').value = billing.phone || '';
+    $('editPhoneSecondary').value = billing.phone_secondary || '';
+    $('editAddressName').value = billing.address_name || billing.company || '';
+    $('editAddress1').value = billing.address_1 || '';
+    $('editAddress2').value = billing.address_2 || '';
+    $('editDeliveryDate').value = billing.delivery_date || '';
+    $('editDeliveryTime').value = billing.delivery_time || '';
+    $('editLocationUrl').value = billing.location_url || '';
+    $('editNotesCustomer').value = billing.notes_customer || '';
+    $('editNotesInternal').value = billing.notes_internal || '';
+
+    state.editSclAddressId = billing.scl_address_id || null;
+    state.editLocationUrl = billing.location_url || '';
+    state.editLocationLat = billing.location_lat || '';
+    state.editLocationLng = billing.location_lng || '';
+
+    loadCustomerAddressesForEdit(order);
+
+    loadZonesForDashboard().then(zones => {
+      const select = $('editZoneSelect');
+      if (!select) return;
+      select.innerHTML = '<option value="">Select zone</option>';
+      const currentZone = billing.zone || billing.city || '';
+      zones.forEach(zone => {
+        const opt = document.createElement('option');
+        opt.value = zone.zone_name;
+        opt.textContent = `${zone.zone_name} (${zone.shipping_cost} EGP)`;
+        if (currentZone && (zone.zone_name === currentZone || zone.zone_name_ar === currentZone)) {
+          opt.selected = true;
+        }
+        select.appendChild(opt);
+      });
+    }).catch(err => {
+      console.error('Dashboard: loadZonesForDashboard failed', err);
+    });
+
+    // Products
+    renderEditProductsList();
+    recalcPreviewTotals();
+
+    // Show modal and reset to first tab
+    switchModalTab('general');
+    $('editOrderBackdrop').classList.add('active');
+  }
+
+  function renderEditProductsList() {
+    const order = state.editOrder;
+    if (!order) return;
+
+    const list = $('editProductsList');
+    list.innerHTML = '';
+
+    if (!order.line_items || order.line_items.length === 0) {
+      list.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--secondary);">No products in this order</div>';
+      return;
+    }
+
+    const table = document.createElement('table');
+    table.className = 'products-table';
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Qty</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    `;
+
+    const tbody = table.querySelector('tbody');
+    const currency = order.currency || 'EGP';
+
+    (order.line_items || []).forEach(item => {
+      const lineId = item.id;
+      const currentQty = item.quantity || 0;
+      state.editQuantities[lineId] = currentQty;
+
+      const basePrice = item.price
+        ? parseFloat(item.price)
+        : (item.subtotal && item.quantity
+          ? parseFloat(item.subtotal) / item.quantity
+          : 0);
+
+      const lineTotal = item.total ? parseFloat(item.total) : 0;
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>
+          <div class="product-name">${item.name || 'Product'}</div>
+          <div class="product-id">#${item.product_id || ''}</div>
+        </td>
+        <td>${basePrice.toFixed(2)} ${currency}</td>
+        <td>
+          <div class="qty-control">
+            <input type="number" min="0" class="qty-input" data-line-id="${lineId}" value="${currentQty}">
+          </div>
+        </td>
+        <td>${lineTotal.toFixed(2)} ${currency}</td>
+      `;
+
+      tbody.appendChild(row);
+    });
+
+    list.appendChild(table);
+
+    // Attach qty change listeners
+    list.querySelectorAll('.qty-input').forEach(input => {
+      input.addEventListener('input', () => {
+        const id = parseInt(input.dataset.lineId, 10);
+        let val = parseInt(input.value, 10);
+        if (isNaN(val) || val < 0) val = 0;
+        state.editQuantities[id] = val;
+        log('edit', 'Qty changed', { line_item_id: id, qty: val });
+        recalcPreviewTotals();
+      });
+    });
+  }
+
+  function closeEditOrder() {
+    state.editOrder = null;
+    state.editQuantities = {};
+    state.editNewProducts = [];
+    $('editOrderBackdrop').classList.remove('active');
+  }
+
+  function switchModalTab(tabName) {
+    $$('.modal-tab').forEach(tab => {
+      tab.classList.toggle('active', tab.dataset.tab === tabName);
+    });
+    $$('.modal-tab-content').forEach(content => {
+      content.classList.toggle('active', content.id === `tab-${tabName}`);
+    });
+  }
+
+  function recalcPreviewTotals() {
+    const order = state.editOrder;
+    if (!order) return;
+
+    let subtotalBeforeDiscount = 0;
+
+    (order.line_items || []).forEach(item => {
+      const lineId = item.id;
+      const qty = state.editQuantities[lineId] ?? item.quantity ?? 0;
+      let unitSubtotal = 0;
+      if (item.subtotal && item.quantity) {
+        unitSubtotal = parseFloat(item.subtotal) / parseFloat(item.quantity);
+      } else if (item.price) {
+        unitSubtotal = parseFloat(item.price);
+      } else if (item.total && item.quantity) {
+        unitSubtotal = parseFloat(item.total) / parseFloat(item.quantity);
+      }
+      subtotalBeforeDiscount += unitSubtotal * qty;
+    });
+
+    (state.editNewProducts || []).forEach(p => {
+      const price = parseFloat(p.price || 0) || 0;
+      const qty = parseFloat(p.quantity || 0) || 0;
+      subtotalBeforeDiscount += price * qty;
+    });
+
+    const shipping = parseFloat(order.shipping_total || 0) || 0;
+    const feeTotal = (order.fee_lines || []).reduce(
+      (sum, fee) => sum + (parseFloat(fee.total || 0) || 0),
+      0
+    );
+    const discount = parseFloat(order.discount_total || 0) || 0;
+    const total = subtotalBeforeDiscount + shipping + feeTotal - discount;
+
+    const currency = order.currency || 'EGP';
+    $('previewSubtotal').textContent = subtotalBeforeDiscount.toFixed(2) + ' ' + currency;
+    $('previewShipping').textContent = shipping.toFixed(2) + ' ' + currency;
+    $('previewFees').textContent = feeTotal.toFixed(2) + ' ' + currency;
+    $('previewDiscount').textContent = '-' + discount.toFixed(2) + ' ' + currency;
+    $('previewTotal').textContent = total.toFixed(2) + ' ' + currency;
+
+    log('edit', 'Preview totals', { subtotalBeforeDiscount, shipping, feeTotal, discount, total });
+  }
+
+  async function updateCurrentCustomerAddress() {
+    const order = state.editOrder;
+    if (!order) {
+      showToast('No order in edit state', 'error');
+      return;
+    }
+    const sclId = (state.editSclAddressId || order.billing.scl_address_id || '').toString().trim();
+    if (!sclId) {
+      showToast('No saved address linked to this order', 'warning');
+      return;
+    }
+    const addressData = {
+      user_id: order.customer_id,
+      address_name: $('editAddressName').value.trim(),
+      customer_name: $('editFirstName').value.trim(),
+      phone_primary: $('editPhone').value.trim(),
+      phone_secondary: $('editPhoneSecondary').value.trim(),
+      zone: $('editZoneSelect').value.trim(),
+      address_details: $('editAddress1').value.trim(),
+      notes_customer: $('editNotesCustomer').value.trim(),
+      notes_internal: $('editNotesInternal').value.trim(),
+      location_url: $('editLocationUrl').value.trim()
+    };
+    setGlobalLoading(true);
+    try {
+      const url = `${API_BASE}/wp-json/scl/v1/addresses/${sclId}`;
+      await apiFetch(url, {
+        method: 'PUT',
+        body: JSON.stringify(addressData)
+      });
+      showToast('Customer address updated in SCL', 'success');
+      await loadCustomerAddressesForEdit(order);
+    } catch (error) {
+      console.error('Failed to update SCL address', error);
+      showToast(error.message || 'Failed to update customer address', 'error');
+    } finally {
+      setGlobalLoading(false);
+    }
+  }
+
+  async function assignSelectedSavedAddressToOrder() {
+    const order = state.editOrder;
+    if (!order) {
+      showToast('No order in edit state', 'error');
+      return;
+    }
+    const select = $('editSavedAddress');
+    if (!select || !select.value) {
+      showToast('Please select a saved address first', 'warning');
+      return;
+    }
+    const selectedId = parseInt(select.value, 10);
+    if (!Array.isArray(state.editAddresses) || !state.editAddresses.length) {
+      showToast('No saved addresses loaded', 'error');
+      return;
+    }
+    const addr = state.editAddresses.find(a => parseInt(a.id, 10) === selectedId);
+    if (!addr) {
+      showToast('Selected address not found', 'error');
+      return;
+    }
+    $('editFirstName').value = addr.customer_name || '';
+    $('editLastName').value = '';
+    $('editPhone').value = addr.phone_primary || '';
+    $('editPhoneSecondary').value = addr.phone_secondary || '';
+    $('editAddressName').value = addr.address_name || '';
+    $('editAddress1').value = addr.address_details || addr.address_name || '';
+    $('editAddress2').value = '';
+    $('editZoneSelect').value = addr.zone || '';
+    $('editNotesCustomer').value = addr.notes_customer || '';
+    $('editNotesInternal').value = addr.notes_internal || '';
+    $('editLocationUrl').value = addr.location_url || '';
+    state.editLocationUrl = addr.location_url || '';
+    state.editLocationLat = addr.location_lat || '';
+    state.editLocationLng = addr.location_lng || '';
+    state.editSclAddressId = selectedId;
+    recalcPreviewTotals();
+    await saveEditedOrder();
+  }
+
+  async function applyCouponToOrder() {
+    const order = state.editOrder;
+    if (!order) {
+      showToast('No order in edit state', 'error');
+      return;
+    }
+    const code = $('editCouponCode').value.trim();
+    if (!code) {
+      showToast('Please enter coupon code', 'warning');
+      return;
+    }
+    setGlobalLoading(true);
+    try {
+      const url = `${API_BASE}${WC_API_BASE}/orders/${order.id}`;
+      const payload = { coupon_lines: [{ code }] };
+      log('edit', 'Applying coupon to order', { orderId: order.id, code, payload });
+      const updated = await apiFetch(url, {
+        method: 'PUT',
+        body: JSON.stringify(payload)
+      });
+      log('edit', 'Order after coupon apply', updated);
+      showToast('Coupon applied successfully', 'success');
+      closeEditOrder();
+      await loadOrders();
+    } catch (error) {
+      console.error('Failed to apply coupon', error);
+      showToast(error.message || 'Failed to apply coupon', 'error');
+    } finally {
+      setGlobalLoading(false);
+    }
+  }
+
+  async function removeCouponFromOrder() {
+    const order = state.editOrder;
+    if (!order) {
+      showToast('No order in edit state', 'error');
+      return;
+    }
+    setGlobalLoading(true);
+    try {
+      const url = `${API_BASE}${WC_API_BASE}/orders/${order.id}`;
+      const payload = { coupon_lines: [] };
+      log('edit', 'Removing coupons from order', { orderId: order.id, payload });
+      const updated = await apiFetch(url, {
+        method: 'PUT',
+        body: JSON.stringify(payload)
+      });
+      log('edit', 'Order after coupon removal', updated);
+      showToast('Coupon removed', 'success');
+      closeEditOrder();
+      await loadOrders();
+    } catch (error) {
+      console.error('Failed to remove coupon', error);
+      showToast(error.message || 'Failed to remove coupon', 'error');
+    } finally {
+      setGlobalLoading(false);
+    }
+  }
+
+  function renderNewProductsList() {
+    const container = $('editNewProductsList');
+    if (!container) return;
+    if (!state.editNewProducts || state.editNewProducts.length === 0) {
+      container.style.display = 'none';
+      return;
+    }
+    container.style.display = 'block';
+    container.innerHTML = `
+      <div class="new-products-title"><i class="fa-solid fa-plus-circle"></i> New Products to Add</div>
+      ${state.editNewProducts.map(p => `
+        <div class="new-product-item">
+          <span>${p.name || 'Product'} (#${p.product_id})</span>
+          <span>x${p.quantity} @ ${p.price.toFixed(2)} ${state.editOrder?.currency || 'EGP'}</span>
+        </div>
+      `).join('')}
+    `;
+  }
+
+  function debounce(fn, delay = 300) {
+    let timer = null;
+    return function (...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+  }
+
+  async function searchProductsByName(term) {
+    if (!term || term.length < 2) return [];
+    const url = new URL(API_BASE + WC_API_BASE + '/products');
+    url.searchParams.set('per_page', '20');
+    url.searchParams.set('search', term);
+    const products = await apiFetch(url.toString(), { method: 'GET' });
+    return Array.isArray(products) ? products : [];
+  }
+
+  function renderProductSearchResults(products) {
+    const box = $('addProductResults');
+    if (!box) return;
+    if (!products.length) {
+      box.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--secondary);">No products found</div>';
+      box.classList.add('active');
+      return;
+    }
+    const order = state.editOrder;
+    const currency = order?.currency || 'EGP';
+    box.innerHTML = products.map(p => {
+      const price = parseFloat(p.price || 0) || 0;
+      return `
+        <div class="product-search-item" data-product-id="${p.id}" data-product-name="${p.name}" data-product-price="${price}">
+          <span>${p.name}</span>
+          <span style="color: var(--secondary);">${price.toFixed(2)} ${currency}</span>
+        </div>
+      `;
+    }).join('');
+    box.classList.add('active');
+    box.querySelectorAll('.product-search-item').forEach(row => {
+      row.addEventListener('click', () => {
+        const id = parseInt(row.dataset.productId, 10);
+        const name = row.dataset.productName;
+        const price = parseFloat(row.dataset.productPrice || 0) || 0;
+        $('addProductId').value = id;
+        $('addProductSelectedLabel').innerHTML = `<strong>${name}</strong> (#${id}) - ${price.toFixed(2)} ${currency}`;
+        $('addProductResults').classList.remove('active');
+        $('addProductSearch').value = '';
+      });
+    });
+  }
+
+  const handleProductSearchInput = debounce(async () => {
+    const term = $('addProductSearch').value.trim();
+    if (!term || term.length < 2) {
+      $('addProductResults').classList.remove('active');
+      $('addProductResults').innerHTML = '';
+      return;
+    }
+    try {
+      setGlobalLoading(true);
+      const products = await searchProductsByName(term);
+      renderProductSearchResults(products);
+    } catch (e) {
+      console.error('Product search failed', e);
+      showToast(e.message || 'Failed to search products', 'error');
+    } finally {
+      setGlobalLoading(false);
+    }
+  }, 300);
+
+  async function checkWarehouseStockForProduct(productId, requiredQty) {
+    const warehouseId = state.editWarehouseId;
+    if (!warehouseId) {
+      log('stock', 'No warehouseId on order', { productId, requiredQty });
+      showToast('No warehouse linked to this order. Cannot validate stock.', 'error');
+      return false;
+    }
+    const url = `${API_BASE}/wp-json/ff/v1/warehouses/${warehouseId}/products?product_id=${productId}`;
+    log('stock', 'Checking warehouse stock', { warehouseId, productId, requiredQty, url });
+    try {
+      const res = await apiFetch(url, { method: 'GET' });
+      const rows = (res && res.data) || [];
+      log('stock', 'Warehouse products response', rows);
+      if (!Array.isArray(rows) || rows.length === 0) return false;
+      const row = rows[0];
+      const available = parseFloat(row.qty || 0) || 0;
+      log('stock', 'Available from FF', { available });
+      return available >= requiredQty;
+    } catch (e) {
+      console.error('Stock check failed', e);
+      showToast(e.message || 'Failed to check warehouse stock', 'error');
+      return false;
+    }
+  }
+
+  async function addNewProductToEditOrder() {
+    const order = state.editOrder;
+    if (!order) {
+      showToast('No order in edit state', 'error');
+      return;
+    }
+    if (!state.editIsFfOrder) {
+      showToast('Only FF Warehouses orders can have products added here.', 'warning');
+      return;
+    }
+    const idVal = $('addProductId').value.trim();
+    const qtyVal = $('addProductQty').value.trim();
+    const productId = parseInt(idVal, 10);
+    const qty = parseFloat(qtyVal);
+    if (!productId || productId <= 0) {
+      showToast('Please select a product from the list', 'warning');
+      return;
+    }
+    if (!qty || qty <= 0) {
+      showToast('Please enter a valid quantity', 'warning');
+      return;
+    }
+    setGlobalLoading(true);
+    try {
+      const hasStock = await checkWarehouseStockForProduct(productId, qty);
+      if (!hasStock) {
+        showToast('Not enough stock in this warehouse for the requested quantity', 'error');
+        return;
+      }
+      const url = `${API_BASE}${WC_API_BASE}/products/${productId}`;
+      const product = await apiFetch(url, { method: 'GET' });
+      const price = parseFloat(product.price || 0) || 0;
+      const name = product.name || `Product #${productId}`;
+      const existing = state.editNewProducts.find(p => p.product_id === productId);
+      if (existing) {
+        existing.quantity += qty;
+      } else {
+        state.editNewProducts.push({ product_id: productId, name, quantity: qty, price });
+      }
+      $('addProductId').value = '';
+      $('addProductQty').value = '1';
+      $('addProductSelectedLabel').textContent = 'No product selected';
+      $('addProductResults').classList.remove('active');
+      $('addProductResults').innerHTML = '';
+      renderNewProductsList();
+      recalcPreviewTotals();
+      showToast('Product added to order (pending save)', 'success');
+      log('edit', 'New products state', state.editNewProducts);
+    } catch (error) {
+      console.error('Failed to add product', error);
+      showToast(error.message || 'Failed to add product', 'error');
+    } finally {
+      setGlobalLoading(false);
+    }
+  }
+
+  async function saveEditedOrder() {
+    const order = state.editOrder;
+    if (!order) {
+      showToast('No order in edit state', 'error');
+      return;
+    }
+    const isFfOrder = !!state.editIsFfOrder;
+    const newStatus = $('editStatus').value;
+    const firstName = $('editFirstName').value.trim();
+    const lastName = $('editLastName').value.trim();
+    const phone = $('editPhone').value.trim();
+    const phoneSecondary = $('editPhoneSecondary').value.trim();
+    const addressName = $('editAddressName').value.trim();
+    const address1 = $('editAddress1').value.trim();
+    const address2 = $('editAddress2').value.trim();
+    const zone = $('editZoneSelect').value.trim();
+    const deliveryDate = $('editDeliveryDate').value;
+    const deliveryTime = $('editDeliveryTime').value;
+    const locationUrlInp = $('editLocationUrl').value.trim();
+    const notesCustomer = $('editNotesCustomer').value.trim();
+    const notesInternal = $('editNotesInternal').value.trim();
+
+    state.editLocationUrl = locationUrlInp || state.editLocationUrl || order.billing.location_url || '';
+    const locationUrl = state.editLocationUrl;
+    const locationLat = state.editLocationLat || order.billing.location_lat || '';
+    const locationLng = state.editLocationLng || order.billing.location_lng || '';
+
+    let sclAddressId = null;
+    const savedAddressSelect = $('editSavedAddress');
+    if (savedAddressSelect && savedAddressSelect.value) {
+      sclAddressId = parseInt(savedAddressSelect.value, 10);
+    } else if (state.editSclAddressId) {
+      sclAddressId = parseInt(state.editSclAddressId, 10);
+    } else if (order.billing.scl_address_id) {
+      sclAddressId = parseInt(order.billing.scl_address_id, 10);
+    }
+    if (sclAddressId) {
+      state.editSclAddressId = sclAddressId;
+    }
+
+    const updatedLineItems = [];
+    (order.line_items || []).forEach(item => {
+      const lineId = item.id;
+      const newQty = state.editQuantities[lineId] ?? item.quantity ?? 0;
+      if (newQty !== item.quantity) {
+        updatedLineItems.push({ id: lineId, quantity: newQty });
+      }
+    });
+
+    const hasQtyChanges = updatedLineItems.length > 0;
+    const hasNewProducts = Array.isArray(state.editNewProducts) && state.editNewProducts.length > 0;
+
+    if (!isFfOrder && (hasQtyChanges || hasNewProducts)) {
+      showToast('This order is not managed by FF Warehouses. Product quantities and new products cannot be edited here.', 'warning');
+      return;
+    }
+
+    const payload = {
+      status: newStatus,
+      billing: {
+        ...order.billing,
+        first_name: firstName,
+        last_name: lastName,
+        phone: phone,
+        address_1: address1,
+        address_2: address2,
+        city: zone,
+        zone: zone,
+        company: addressName || order.billing.company || '',
+        country: order.billing.country || 'EG',
+        state: order.billing.state || '',
+        postcode: order.billing.postcode || '',
+        phone_secondary: phoneSecondary,
+        address_name: addressName,
+        notes_customer: notesCustomer,
+        notes_internal: notesInternal,
+        delivery_date: deliveryDate,
+        delivery_time: deliveryTime,
+        location_url: locationUrl,
+        location_lat: locationLat,
+        location_lng: locationLng,
+        scl_address_id: sclAddressId
+      },
+      shipping: {
+        ...order.shipping,
+        first_name: firstName,
+        last_name: lastName,
+        phone: phone,
+        address_1: address1,
+        address_2: address2,
+        city: zone,
+        country: order.shipping.country || order.billing.country || 'EG',
+        state: order.shipping.state || order.billing.state || '',
+        postcode: order.shipping.postcode || order.billing.postcode || ''
+      }
+    };
+
+    if (updatedLineItems.length > 0) {
+      payload.line_items = updatedLineItems;
+    }
+
+    if (isFfOrder && hasNewProducts) {
+      const newItems = state.editNewProducts
+        .filter(p => p.product_id && p.quantity > 0)
+        .map(p => ({ product_id: p.product_id, quantity: p.quantity }));
+      if (newItems.length > 0) {
+        payload.line_items = (payload.line_items || []).concat(newItems);
+      }
+    }
+
+    log('edit', 'Saving edited order payload', { isFfOrder, payload, billing_debug: payload.billing });
+
+    setGlobalLoading(true);
+    try {
+      let url;
+      if (isFfOrder) {
+        url = `${API_BASE}/wp-json/ff/v1/orders/${order.id}`;
+      } else {
+        url = `${API_BASE}${WC_API_BASE}/orders/${order.id}`;
+      }
+      const updated = await apiFetch(url, {
+        method: 'PUT',
+        body: JSON.stringify(payload)
+      });
+      log('edit', 'Order updated response', updated);
+      showToast('Order updated successfully', 'success');
+      state.editNewProducts = [];
+      closeEditOrder();
+      await loadOrders();
+    } catch (error) {
+      console.error('Failed to update order', error);
+      showToast(error.message || 'Failed to update order', 'error');
+    } finally {
+      setGlobalLoading(false);
+    }
+  }
+
+  // ==================== SIDEBAR ====================
+  function toggleSidebar() {
+    const sidebar = $('sidebar');
+    sidebar.classList.toggle('collapsed');
+    sidebar.classList.toggle('open');
+  }
+
+  // ==================== SETTINGS ====================
+  function loadSavedSettings() {
+    const saved = Storage.loadSettings();
+    if (saved) {
+      state.debug = saved.debug || false;
+      state.autoRefresh = saved.autoRefresh || false;
+      state.filters = saved.filters || { search: '', status: '', dateFrom: '', dateTo: '' };
+
+      // Apply to UI
+      $('debugToggle').classList.toggle('active', state.debug);
+      $('autoRefreshToggle').classList.toggle('active', state.autoRefresh);
+      $('filterSearch').value = state.filters.search || '';
+      $('filterStatus').value = state.filters.status || '';
+      $('filterDateFrom').value = state.filters.dateFrom || '';
+      $('filterDateTo').value = state.filters.dateTo || '';
+
+      if (state.autoRefresh) {
+        startAutoRefresh();
+      }
+    }
+  }
+
+  function toggleDebugMode() {
+    state.debug = !state.debug;
+    $('debugToggle').classList.toggle('active', state.debug);
+    Storage.saveSettings({
+      debug: state.debug,
+      autoRefresh: state.autoRefresh,
+      filters: state.filters
+    });
+    showToast('Debug mode ' + (state.debug ? 'enabled' : 'disabled'), 'info');
+  }
+
+  function toggleAutoRefresh() {
+    state.autoRefresh = !state.autoRefresh;
+    $('autoRefreshToggle').classList.toggle('active', state.autoRefresh);
+    Storage.saveSettings({
+      debug: state.debug,
+      autoRefresh: state.autoRefresh,
+      filters: state.filters
+    });
+    if (state.autoRefresh) {
+      startAutoRefresh();
+      showToast('Auto refresh enabled (every 60s)', 'info');
+    } else {
+      stopAutoRefresh();
+      showToast('Auto refresh disabled', 'info');
+    }
+  }
+
+  function startAutoRefresh() {
+    if (state.autoRefreshInterval) return;
+    state.autoRefreshInterval = setInterval(() => {
+      if (state.token) loadOrders();
+    }, 60000);
+  }
+
+  function stopAutoRefresh() {
+    if (state.autoRefreshInterval) {
+      clearInterval(state.autoRefreshInterval);
+      state.autoRefreshInterval = null;
+    }
+  }
+
+  // ==================== EVENTS & INIT ====================
+  function initEventListeners() {
+    // Login
+    $('loginBtn').onclick = handleLogin;
+    $('loginPassword').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleLogin();
+    });
+
+    // Header
+    $('logoutBtn').onclick = handleLogout;
+    $('refreshBtn').onclick = loadOrders;
+
+    // Sidebar
+    $('sidebarToggleBtn').onclick = toggleSidebar;
+    $('sidebarCloseBtn').onclick = toggleSidebar;
+    $('mobileSidebarToggle').onclick = toggleSidebar;
+
+    // Filters
+    $('applyFiltersBtn').onclick = applyFilters;
+    $('clearFiltersBtn').onclick = clearFilters;
+
+    // Settings
+    $('debugToggle').onclick = toggleDebugMode;
+    $('autoRefreshToggle').onclick = toggleAutoRefresh;
+
+    // Edit modal
+    $('addProductToOrderBtn').onclick = addNewProductToEditOrder;
+    $('addProductSearch').addEventListener('input', handleProductSearchInput);
+    $('editOrderCloseBtn').onclick = closeEditOrder;
+    $('editOrderCancelBtn').onclick = closeEditOrder;
+    $('editOrderBackdrop').addEventListener('click', (e) => {
+      if (e.target.id === 'editOrderBackdrop') closeEditOrder();
+    });
+    $('editOrderSaveBtn').onclick = saveEditedOrder;
+    $('updateCustomerAddressBtn').onclick = updateCurrentCustomerAddress;
+    $('assignSavedAddressBtn').onclick = assignSelectedSavedAddressToOrder;
+    $('applyCouponBtn').onclick = applyCouponToOrder;
+    $('removeCouponBtn').onclick = removeCouponFromOrder;
+
+    // Modal tabs
+    $$('.modal-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        switchModalTab(tab.dataset.tab);
+      });
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.quick-actions')) {
+        $$('.quick-actions-dropdown.active').forEach(d => d.classList.remove('active'));
+      }
+      if (!e.target.closest('.product-search-container')) {
+        $('addProductResults').classList.remove('active');
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    initEventListeners();
+    loadSavedSettings();
+    await tryAutoLogin();
+  });
+</script>
+</body>
+</html>

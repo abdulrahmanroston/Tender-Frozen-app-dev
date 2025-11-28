@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+
+
+    <script>
+(async () => {
+    const API = "https://darkviolet-antelope-523488.hostingersite.com/wp-json";
+    const PHONE = "1";
+    const PASSWORD = "123456";
+
+    // 1) تسجيل الدخول
+    async function login() {
+        const res = await fetch(`${API}/shrms/v1/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone: PHONE, password: PASSWORD })
+        });
+
+        const data = await res.json();
+        console.log("LOGIN RESPONSE:", data);
+
+        if (!res.ok || !data.success) {
+            console.error("Login failed:", data);
+            return null;
+        }
+
+        return data.data.token;
+    }
+
+    // 2) جلب الأوردرات من WooCommerce (باستخدام Token الخاص بالموظف)
+    async function getOrders(token) {
+        const res = await fetch(`${API}/wc/v3/orders`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        const data = await res.json();
+        console.log("ORDERS RESPONSE:", data);
+
+        if (!res.ok) {
+            console.error("Orders fetch failed:", data);
+            return null;
+        }
+
+        return data;
+    }
+
+    // تنفيذ الخطوات
+    const token = await login();
+    if (token) {
+        console.log("TOKEN:", token);
+        await getOrders(token);
+    }
+})();
+</script>
+
+</body>
+</html>

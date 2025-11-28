@@ -1,0 +1,2592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tender Frozen Orders Management</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --primary: #1a73e8;
+      --primary-dark: #1557b0;
+      --secondary: #5f6368;
+      --success: #34a853;
+      --danger: #ea4335;
+      --warning: #fbbc04;
+      --info: #4285f4;
+      --light: #f8f9fa;
+      --bg: #f1f3f4;
+      --border: #dadce0;
+      --dark: #202124;
+      --shadow: 0 1px 3px rgba(0,0,0,0.12);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,0.16);
+      --radius: 10px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--dark);
+      min-height: 100vh;
+    }
+
+    #app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .screen {
+      display: none;
+      min-height: 100vh;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    /* HEADER (for orders screen) */
+    .header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-lg);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-title h1 {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .header-title p {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .badge {
+      background: rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn {
+      border-radius: 8px;
+      border: 1px solid transparent;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      background: rgba(255,255,255,0.18);
+      color: #fff;
+    }
+
+    .btn:hover {
+      background: rgba(255,255,255,0.28);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: #fff;
+      color: var(--primary-dark);
+    }
+
+    .btn-primary:hover {
+      background: #f1f3f4;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border-color: rgba(255,255,255,0.4);
+    }
+
+    .btn-secondary {
+      background: #eee;
+      color: var(--secondary);
+      border-color: var(--border);
+    }
+
+    .btn-disabled {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 11px;
+      border-radius: 999px;
+      border-width: 1px;
+    }
+
+    /* LOGIN SCREEN */
+    .center-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: #fff;
+      padding: 24px 24px 20px;
+      border-radius: 14px;
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .card-subtitle {
+      font-size: 13px;
+      color: var(--secondary);
+      margin-bottom: 18px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .input-with-icon {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: #fff;
+    }
+
+    .input-with-icon i {
+      color: var(--secondary);
+      font-size: 13px;
+    }
+
+    .form-control {
+      border: none;
+      flex: 1;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .btn-block {
+      width: 100%;
+      justify-content: center;
+      margin-top: 8px;
+    }
+
+    .spinner {
+      border-radius: 999px;
+      border: 3px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      width: 16px;
+      height: 16px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .spinner.hidden {
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* MAIN CONTENT */
+    .main {
+      max-width: 1440px;
+      margin: 16px auto 32px;
+      padding: 0 16px;
+    }
+
+    .filters-card {
+      background: #fff;
+      padding: 16px 16px 12px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .filter-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--secondary);
+      text-transform: uppercase;
+    }
+
+    .filter-input,
+    .filter-select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .filters-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filters-actions .btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+    }
+
+    .filters-actions .btn-secondary {
+      background: #eee;
+      color: var(--secondary);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 14px 14px 10px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+      text-align: center;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .stat-card.active {
+      border-color: var(--primary);
+      background: #e8f0fe;
+    }
+
+    .stat-card h3 {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--secondary);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .stat-card p {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .orders-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .order-card {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .order-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      background: var(--light);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .order-header-main h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .order-header-main p {
+      font-size: 11px;
+      color: var(--secondary);
+    }
+
+    .order-header-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-badge {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      color: #fff;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .status-pending { background: var(--warning); }
+    .status-processing { background: var(--info); }
+    .status-on-hold { background: #f97316; }
+    .status-on-delivery { background: #7c3aed; }
+    .status-delivered { background: #0ea5e9; }
+    .status-completed { background: var(--success); }
+    .status-cancelled { background: var(--danger); }
+    .status-refunded { background: #6b7280; }
+    .status-failed { background: #991b1b; }
+
+    .order-header-icon {
+      font-size: 16px;
+      color: var(--secondary);
+      transition: transform 0.2s ease;
+    }
+
+    .order-card.expanded .order-header-icon {
+      transform: rotate(180deg);
+    }
+
+    .order-body {
+      display: none;
+      padding: 12px 14px 10px;
+    }
+
+    .order-card.expanded .order-body {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .detail-section h4 {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--secondary);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+    }
+
+    .detail-item {
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .detail-label {
+      font-weight: 600;
+      color: var(--secondary);
+      margin-right: 4px;
+    }
+
+    .products-box {
+      background: var(--light);
+      border-radius: 8px;
+      padding: 8px;
+      margin-top: 4px;
+    }
+
+    .product-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 4px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .product-row:last-child {
+      border-bottom: none;
+    }
+
+    .product-qty {
+      background: #e5e7eb;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 11px;
+    }
+
+    .actions-row {
+      grid-column: 1 / -1;
+      border-top: 1px solid var(--border);
+      margin-top: 6px;
+      padding-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .btn-status {
+      background: var(--info);
+      color: #fff;
+      border-color: var(--info);
+    }
+
+    .btn-copy {
+      background: #fde68a;
+      color: #92400e;
+      border-color: #fbbf24;
+    }
+
+    .btn-wa {
+      background: #25D366;
+      color: #fff;
+      border-color: #25D366;
+    }
+
+    .btn-edit {
+      background: #10b981;
+      color: #fff;
+      border-color: #10b981;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 16px;
+      color: var(--secondary);
+      font-size: 14px;
+    }
+
+    .empty-state i {
+      font-size: 40px;
+      margin-bottom: 8px;
+      opacity: 0.3;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      display: none;
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .spinner-lg {
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .main {
+        padding: 0 10px;
+      }
+
+      .order-card.expanded .order-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* EDIT MODAL */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      max-width: 700px;
+      width: 95%;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .modal-body {
+      padding: 12px 16px;
+      overflow-y: auto;
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .modal-section h4 {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--secondary);
+      margin-bottom: 4px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+    }
+
+    .modal-footer {
+      padding: 10px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      color: var(--secondary);
+    }
+
+    .modal-form-group {
+      margin-bottom: 8px;
+    }
+
+    .modal-form-group label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 2px;
+      color: var(--secondary);
+      font-weight: 500;
+    }
+
+    .modal-form-group input,
+    .modal-form-group select {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .modal-products-list {
+      background: var(--light);
+      border-radius: 8px;
+      padding: 8px;
+      max-height: 230px;
+      overflow-y: auto;
+    }
+
+    .modal-product-row {
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr 0.6fr;
+      gap: 6px;
+      align-items: center;
+      font-size: 12px;
+      padding: 4px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .modal-product-row:last-child {
+      border-bottom: none;
+    }
+
+    .modal-product-qty {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .qty-input {
+      width: 50px;
+      padding: 4px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .totals-box {
+      background: #f1f5f9;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 12px;
+    }
+
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .totals-row.total {
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <!-- Global loading -->
+  <div id="globalLoading" class="loading-overlay">
+    <div class="spinner-lg"></div>
+  </div>
+
+  <!-- Screen: Login -->
+  <section id="screen-login" class="screen active">
+    <div class="center-screen">
+      <div class="card">
+        <div class="card-title">Sign in to Orders Dashboard</div>
+        <div class="card-subtitle">
+          Use your staff phone and password (SHRMS authentication).
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="loginPhone">Phone</label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-phone"></i>
+            <input id="loginPhone" type="tel" class="form-control" placeholder="+20 1XXXXXXXXX">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="loginPassword">Password</label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-lock"></i>
+            <input id="loginPassword" type="password" class="form-control" placeholder="••••••••">
+          </div>
+        </div>
+
+        <button id="loginBtn" class="btn btn-primary btn-block">
+          <span>Sign in</span>
+          <span id="loginSpinner" class="spinner hidden"></span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screen: Orders -->
+  <section id="screen-orders" class="screen">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <div class="header-title">
+          <h1>Orders Management</h1>
+          <p>Internal staff dashboard (SHRMS Auth)</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="badge" id="employeeBadge">
+          <i class="fa-solid fa-user"></i>
+          <span id="employeeName">Signed in</span>
+        </div>
+        <button class="btn btn-ghost" id="debugBtn">
+          <i class="fa-solid fa-bug"></i> Debug ON
+        </button>
+        <button class="btn btn-primary" id="refreshBtn">
+          <i class="fa-solid fa-rotate"></i> Refresh
+        </button>
+        <button class="btn btn-ghost" id="logoutBtn">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- Filters -->
+      <section class="filters-card">
+        <div class="filter-row">
+          <div>
+            <span class="filter-label">Search</span>
+            <input id="filterSearch" class="filter-input"
+                   placeholder="Customer name, email, or phone">
+          </div>
+          <div>
+            <span class="filter-label">Status</span>
+            <select id="filterStatus" class="filter-select">
+              <option value="">All statuses</option>
+              <option value="pending">Pending payment</option>
+              <option value="processing">Processing</option>
+              <option value="on-hold">On hold</option>
+              <option value="on-delivery">On delivery</option>
+              <option value="delivered">Delivered</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="refunded">Refunded</option>
+              <option value="failed">Failed</option>
+            </select>
+          </div>
+          <div>
+            <span class="filter-label">Date from</span>
+            <input id="filterDateFrom" type="date" class="filter-input">
+          </div>
+          <div>
+            <span class="filter-label">Date to</span>
+            <input id="filterDateTo" type="date" class="filter-input">
+          </div>
+        </div>
+        <div class="filters-actions">
+          <button class="btn" id="applyFiltersBtn">
+            <i class="fa-solid fa-filter"></i> Apply filters
+          </button>
+          <button class="btn btn-secondary" id="clearFiltersBtn">
+            <i class="fa-solid fa-xmark"></i> Clear
+          </button>
+        </div>
+      </section>
+
+      <!-- Stats -->
+      <section class="stats-grid" id="statsContainer"></section>
+
+      <!-- Orders list -->
+      <section>
+        <div id="ordersList" class="orders-list"></div>
+      </section>
+    </main>
+  </section>
+
+  <!-- Edit Order Modal -->
+  <div id="editOrderBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="editOrderTitle">Edit Order</h3>
+        <button class="modal-close-btn" id="editOrderCloseBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Left: Status + Customer/Address -->
+        <div class="modal-section">
+          <h4>General</h4>
+          <div class="modal-form-group">
+            <label for="editStatus">Status</label>
+            <select id="editStatus">
+              <option value="pending">Pending payment</option>
+              <option value="processing">Processing</option>
+              <option value="on-hold">On hold</option>
+              <option value="on-delivery">On delivery</option>
+              <option value="delivered">Delivered</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="refunded">Refunded</option>
+              <option value="failed">Failed</option>
+            </select>
+          </div>
+        </div>
+
+
+<div class="modal-section">
+  <h4>Customer & Address</h4>
+
+  <!-- اختيار عنوان محفوظ -->
+  <div class="modal-form-group">
+    <label for="editSavedAddress">Saved address</label>
+    <select id="editSavedAddress">
+      <option value="">Keep current address</option>
+      <!-- سيتم ملؤها من الـ JS -->
+    </select>
+  </div>
+
+  <div class="modal-form-group">
+    <label for="editFirstName">First name</label>
+    <input id="editFirstName" type="text">
+  </div>
+
+  <div class="modal-form-group">
+    <label for="editLastName">Last name</label>
+    <input id="editLastName" type="text">
+  </div>
+
+  <div class="modal-form-group">
+    <label for="editPhone">Phone</label>
+    <input id="editPhone" type="tel">
+  </div>
+
+  <div class="modal-form-group">
+    <label for="editPhoneSecondary">Secondary phone</label>
+    <input id="editPhoneSecondary" type="tel">
+  </div>
+
+  <div class="modal-form-group">
+    <label for="editAddressName">Address name / label</label>
+    <input id="editAddressName" type="text" placeholder="e.g. Home, Office">
+  </div>
+
+  <div class="modal-form-group">
+    <label for="editAddress1">Address line 1</label>
+    <input id="editAddress1" type="text">
+  </div>
+
+  <div class="modal-form-group">
+    <label for="editAddress2">Address line 2</label>
+    <input id="editAddress2" type="text" placeholder="Apartment, floor, landmark">
+  </div>
+
+  <div class="modal-form-group">
+  <label for="editZoneSelect">Zone / City</label>
+  <select id="editZoneSelect" class="select-control">
+    <option value="">Select zone</option>
+    <!-- سيتم ملؤها من الـ JS من /scl/v1/zones -->
+  </select>
+</div>
+
+
+  <div class="modal-form-group">
+    <label for="editDeliveryDate">Delivery date</label>
+    <input id="editDeliveryDate" type="date">
+  </div>
+
+  <div class="modal-form-group">
+    <label for="editDeliveryTime">Delivery time</label>
+    <input id="editDeliveryTime" type="text" placeholder="e.g. 2 PM - 4 PM">
+  </div>
+
+  <div class="modal-form-group">
+    <label for="editLocationUrl">Location (Google Maps URL)</label>
+    <input id="editLocationUrl" type="text" placeholder="https://www.google.com/maps?q=...">
+  </div>
+
+  <div class="modal-form-group">
+    <label for="editNotesCustomer">Customer notes</label>
+    <textarea id="editNotesCustomer" rows="2"></textarea>
+  </div>
+
+  <div class="modal-form-group">
+    <label for="editNotesInternal">Internal notes (admin only)</label>
+    <textarea id="editNotesInternal" rows="2"></textarea>
+  </div>
+</div>
+
+
+
+<div class="detail-section">
+  <h4>Coupon</h4>
+  <div class="detail-item">
+    <span class="detail-label">Code:</span>
+    <input type="text" id="editCouponCode" class="input" placeholder="COUPON2025">
+  </div>
+  <div class="actions-row">
+    <button class="btn btn-sm" id="applyCouponBtn">
+      Apply coupon
+    </button>
+    <button class="btn btn-sm btn-secondary" id="removeCouponBtn">
+      Remove coupon
+    </button>
+  </div>
+</div>
+
+
+
+
+        <!-- Right: Products + Totals -->
+        <div class="modal-section">
+          <h4>Products</h4>
+          <div id="editProductsList" class="modal-products-list"></div>
+        </div>
+
+
+        <div class="detail-section">
+  <h4>Add products</h4>
+
+  <!-- بحث عن المنتج بالاسم -->
+  <div class="detail-item">
+    <span class="detail-label">Product:</span>
+    <input type="text" id="addProductSearch" class="input"
+           placeholder="Search product by name...">
+  </div>
+
+  <!-- قائمة نتائج البحث -->
+  <div id="addProductResults" class="products-box" style="
+       max-height: 200px;
+       overflow-y: auto;
+       margin-bottom: 8px;
+       border: 1px solid #e5e7eb;
+       border-radius: 6px;
+       display: none;
+  "></div>
+
+  <!-- المنتج المختار + الكمية -->
+  <div class="detail-item">
+    <span class="detail-label">Selected:</span>
+    <span id="addProductSelectedLabel" style="font-size:12px;color:#6b7280;">
+      No product selected
+    </span>
+  </div>
+
+  <input type="hidden" id="addProductId">
+
+  <div class="detail-item">
+    <span class="detail-label">Quantity:</span>
+    <input type="number" id="addProductQty" class="input"
+           placeholder="1" min="1" value="1">
+  </div>
+
+  <div class="actions-row">
+    <button class="btn btn-sm" id="addProductToOrderBtn">
+      Add product
+    </button>
+  </div>
+
+  <div id="editNewProductsList" class="products-box" style="margin-top:8px;"></div>
+</div>
+
+
+
+
+        <div class="modal-section">
+          <h4>Totals (Preview)</h4>
+          <div class="totals-box">
+            <div class="totals-row">
+              <span>Subtotal</span>
+              <span id="previewSubtotal">0.00</span>
+            </div>
+            <div class="totals-row">
+              <span>Shipping</span>
+              <span id="previewShipping">0.00</span>
+            </div>
+            <div class="totals-row">
+              <span>Fees</span>
+              <span id="previewFees">0.00</span>
+            </div>
+            <div class="totals-row">
+              <span>Discount</span>
+              <span id="previewDiscount">0.00</span>
+            </div>
+            <div class="totals-row total">
+              <span>Total</span>
+              <span id="previewTotal">0.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" id="editOrderCancelBtn">Cancel</button>
+        <button class="btn btn-secondary" id="updateCustomerAddressBtn">
+  Update customer address
+</button>
+<button class="btn btn-primary" id="editOrderSaveBtn">
+  Save order
+</button>
+<button class="btn btn-secondary" id="assignSavedAddressBtn">
+  Apply saved address
+</button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  // ==================== CONFIG ====================
+  const API_BASE = 'https://darkviolet-antelope-523488.hostingersite.com';
+  const SHRMS_LOGIN_ENDPOINT = '/wp-json/shrms/v1/auth/login';
+  const WC_API_BASE = '/wp-json/wc/v3';
+  const STORAGE_KEY = 'shrms_auth_orders_dashboard';
+
+  // ==================== STATE ====================
+  const state = {
+  token: null,
+  employee: null,
+  orders: [],
+  filters: {
+    search: '',
+    status: '',
+    dateFrom: '',
+    dateTo: ''
+  },
+  debug: true,
+  editOrder: null,        // full order object being edited
+  editQuantities: {},     // map line_item_id => qty
+  editIsFfOrder: false,   // هل الطلب تابع لـ FF Warehouses
+  editSclAddressId: null, // scl_address_id الحالي أو المُختار
+  editLocationUrl: '',    // location_url المستخدم في الحفظ
+  editLocationLat: '',    // لو احتجت تعديلها لاحقاً
+  editLocationLng: '',    // لو احتجت تعديلها لاحقاً
+  editNewProducts: [],     // مصفوفة المنتجات الجديدة المضافة للطلب {product_id, name, quantity, price}
+  editWarehouseId: null    // 👈 ID مخزن الطلب الحالي
+
+};
+
+
+  // ==================== HELPERS ====================
+  function $(id) { return document.getElementById(id); }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    $(id).classList.add('active');
+  }
+
+  function setGlobalLoading(visible) {
+    const el = $('globalLoading');
+    if (visible) el.classList.add('active');
+    else el.classList.remove('active');
+  }
+
+  function log(category, message, data = null) {
+    if (!state.debug) return;
+    const time = new Date().toISOString().split('T')[1].split('.')[0];
+    console.log(`[${time}] [${category}] ${message}`, data || '');
+  }
+
+  function showToast(message, type = 'success') {
+    Swal.fire({
+      title: type === 'error' ? 'Error' :
+             type === 'warning' ? 'Warning' :
+             type === 'info' ? 'Info' : 'Success',
+      text: message,
+      icon: type,
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 2500,
+      timerProgressBar: true
+    });
+  }
+
+  function authHeaders() {
+    return state.token ? { 'Authorization': 'Bearer ' + state.token } : {};
+  }
+
+  async function apiFetch(url, options = {}) {
+    const finalOptions = {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options.headers || {}),
+        ...authHeaders()
+      }
+    };
+
+    log('api', 'Request', { url, options: finalOptions });
+
+    const res = await fetch(url, finalOptions);
+
+    if (!res.ok) {
+      let msg = 'HTTP ' + res.status;
+      try {
+        const data = await res.json();
+        if (data && data.message) msg = data.message;
+        log('api', 'Error response JSON', data);
+      } catch (e) {
+        const text = await res.text();
+        log('api', 'Error response text', text);
+      }
+      throw new Error(msg);
+    }
+
+    const json = await res.json();
+    log('api', 'Response', json);
+    return json;
+  }
+
+async function loadZonesForDashboard() {
+  const url = `${API_BASE}/wp-json/scl/v1/zones?active_only=true`;
+
+  try {
+    const response = await apiFetch(url, { method: 'GET' });
+
+    if (!response.success || !response.data) {
+      throw new Error('Failed to load zones');
+    }
+
+    return response.data; // مصفوفة من { id, zone_name, zone_name_ar, shipping_cost, ... }
+  } catch (error) {
+    console.error('Dashboard: Failed to load zones', error);
+    // يمكن هنا إضافة fallback بسيط لو حابب، لكن الأفضل الاعتماد على SCL
+    return [];
+  }
+}
+
+
+
+  // Trigger FF Warehouses plugin to recalc totals & stock for an order
+async function triggerWarehouseRecalc(orderId) {
+  // TODO: غيّر المسار حسب ما تنفذه في FF Warehouses
+  const url = `${API_BASE}/wp-json/ff/v1/orders/${orderId}/recalculate`;
+
+  log('ff', 'Trigger warehouse recalculation start', { orderId, url });
+
+  try {
+    const response = await apiFetch(url, {
+      method: 'POST',
+      body: JSON.stringify({ order_id: orderId })
+    });
+    log('ff', 'Warehouse recalculation response', response);
+    return response;
+  } catch (error) {
+    log('ff', 'Warehouse recalculation failed', { orderId, error });
+    // لا نمنع حفظ الطلب لو فشل، فقط نعرض تحذير
+    showToast('Warehouse recalculation failed: ' + error.message, 'warning');
+    return null;
+  }
+}
+
+
+  // ==================== STORAGE ====================
+  const Storage = {
+    saveAuth(authData) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          token: authData.token,
+          employee: authData.employee,
+          timestamp: Date.now()
+        }));
+      } catch (e) {
+        console.error('Failed to save auth', e);
+      }
+    },
+    loadAuth() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        const age = Date.now() - parsed.timestamp;
+        const maxAge = 30 * 24 * 60 * 60 * 1000;
+        if (age > maxAge) {
+          localStorage.removeItem(STORAGE_KEY);
+          return null;
+        }
+        return parsed;
+      } catch (e) {
+        console.error('Failed to load auth', e);
+        return null;
+      }
+    },
+    clearAuth() {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  };
+
+  // ==================== AUTH ====================
+  async function login(phone, password) {
+    return apiFetch(API_BASE + SHRMS_LOGIN_ENDPOINT, {
+      method: 'POST',
+      body: JSON.stringify({ phone, password })
+    });
+  }
+
+  async function handleLogin() {
+    const phone = $('loginPhone').value.trim();
+    const password = $('loginPassword').value;
+
+    if (!phone || !password) {
+      showToast('Please enter phone and password', 'warning');
+      return;
+    }
+
+    const btn = $('loginBtn');
+    const spinner = $('loginSpinner');
+
+    btn.disabled = true;
+    spinner.classList.remove('hidden');
+
+    try {
+      const response = await login(phone, password);
+      log('auth', 'Login response', response);
+
+      if (!response.success || !response.data || !response.data.token) {
+        throw new Error(response.message || 'Login failed');
+      }
+
+      state.token = response.data.token;
+      state.employee = response.data.employee;
+
+      Storage.saveAuth({
+        token: state.token,
+        employee: state.employee
+      });
+
+      $('employeeName').textContent = state.employee.name || 'Staff';
+
+      showToast('Signed in successfully', 'success');
+      showScreen('screen-orders');
+
+      await loadOrders();
+    } catch (error) {
+      console.error('Login error', error);
+      showToast(error.message, 'error');
+    } finally {
+      btn.disabled = false;
+      spinner.classList.add('hidden');
+    }
+  }
+
+  async function tryAutoLogin() {
+    const stored = Storage.loadAuth();
+    if (!stored || !stored.token) {
+      showScreen('screen-login');
+      return;
+    }
+
+    state.token = stored.token;
+    state.employee = stored.employee;
+    $('employeeName').textContent = state.employee?.name || 'Staff';
+
+    showScreen('screen-orders');
+    showToast('Auto-login successful', 'info');
+    await loadOrders();
+  }
+
+  function handleLogout() {
+    Storage.clearAuth();
+    state.token = null;
+    state.employee = null;
+    state.orders = [];
+    $('ordersList').innerHTML = '';
+    $('filterSearch').value = '';
+    $('filterStatus').value = '';
+    $('filterDateFrom').value = '';
+    $('filterDateTo').value = '';
+    showScreen('screen-login');
+    showToast('Signed out', 'success');
+  }
+
+  // ==================== ORDERS ====================
+  async function loadOrders() {
+    if (!state.token) {
+      showToast('Please sign in first', 'warning');
+      showScreen('screen-login');
+      return;
+    }
+
+    const { search, status, dateFrom, dateTo } = state.filters;
+
+    setGlobalLoading(true);
+    try {
+      const url = new URL(API_BASE + WC_API_BASE + '/orders');
+      url.searchParams.set('per_page', '50');
+      url.searchParams.set('orderby', 'date');
+      url.searchParams.set('order', 'desc');
+
+      if (status) url.searchParams.set('status', status);
+      if (search) url.searchParams.set('search', search);
+      if (dateFrom) url.searchParams.set('after', dateFrom + 'T00:00:00');
+      if (dateTo) url.searchParams.set('before', dateTo + 'T23:59:59');
+
+      log('orders', 'Loading orders from', url.toString());
+      const orders = await apiFetch(url.toString());
+      state.orders = Array.isArray(orders) ? orders : [];
+
+      renderStats();
+      renderOrders();
+      log('orders', 'Orders loaded count', state.orders.length);
+    } catch (error) {
+      console.error('Failed to load orders', error);
+      showToast(error.message || 'Failed to load orders', 'error');
+      $('ordersList').innerHTML = `
+        <div class="empty-state">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <p>Failed to load orders. Check console for details.</p>
+        </div>
+      `;
+    } finally {
+      setGlobalLoading(false);
+    }
+  }
+
+  function applyFilters() {
+    state.filters.search = $('filterSearch').value.trim();
+    state.filters.status = $('filterStatus').value;
+    state.filters.dateFrom = $('filterDateFrom').value;
+    state.filters.dateTo = $('filterDateTo').value;
+    log('filters', 'Applying filters', state.filters);
+    loadOrders();
+  }
+
+  function clearFilters() {
+    $('filterSearch').value = '';
+    $('filterStatus').value = '';
+    $('filterDateFrom').value = '';
+    $('filterDateTo').value = '';
+    state.filters = { search: '', status: '', dateFrom: '', dateTo: '' };
+    log('filters', 'Cleared filters');
+    loadOrders();
+  }
+
+  function renderStats() {
+    const container = $('statsContainer');
+    container.innerHTML = '';
+
+    if (state.orders.length === 0) return;
+
+    const statusCounts = {};
+    state.orders.forEach(o => {
+      statusCounts[o.status] = (statusCounts[o.status] || 0) + 1;
+    });
+
+    const statuses = [
+      { key: 'pending', label: 'Pending' },
+      { key: 'processing', label: 'Processing' },
+      { key: 'on-hold', label: 'On hold' },
+      { key: 'on-delivery', label: 'On delivery' },
+      { key: 'delivered', label: 'Delivered' },
+      { key: 'completed', label: 'Completed' },
+      { key: 'cancelled', label: 'Cancelled' },
+      { key: 'refunded', label: 'Refunded' },
+      { key: 'failed', label: 'Failed' }
+    ];
+
+    statuses.forEach(st => {
+      const count = statusCounts[st.key] || 0;
+      if (count === 0) return;
+
+      const card = document.createElement('div');
+      card.className = 'stat-card' + (state.filters.status === st.key ? ' active' : '');
+      card.innerHTML = `
+        <h3>${st.label}</h3>
+        <p>${count}</p>
+      `;
+      card.onclick = () => {
+        if (state.filters.status === st.key) {
+          state.filters.status = '';
+          $('filterStatus').value = '';
+        } else {
+          state.filters.status = st.key;
+          $('filterStatus').value = st.key;
+        }
+        log('stats', 'Status filter via stats card', state.filters.status);
+        loadOrders();
+      };
+      container.appendChild(card);
+    });
+  }
+
+  function renderOrders() {
+    const container = $('ordersList');
+    container.innerHTML = '';
+
+    if (state.orders.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <i class="fa-solid fa-box-open"></i>
+          <p>No orders found.</p>
+        </div>
+      `;
+      return;
+    }
+
+    state.orders.forEach(order => {
+      const card = document.createElement('div');
+      card.className = 'order-card';
+      card.dataset.orderId = order.id;
+
+      const billing = order.billing || {};
+      const name = `${billing.first_name || ''} ${billing.last_name || ''}`.trim() || 'Unknown customer';
+      const created = order.date_created ? new Date(order.date_created).toLocaleString() : 'N/A';
+      const total = parseFloat(order.total || 0).toFixed(2) + ' ' + (order.currency || 'EGP');
+
+      const header = document.createElement('div');
+      header.className = 'order-header';
+      header.innerHTML = `
+        <div class="order-header-main">
+          <h3>Order #${order.id}</h3>
+          <p>${name} • ${created}</p>
+        </div>
+        <div class="order-header-meta">
+          <span class="status-badge status-${order.status}">${order.status}</span>
+          <span>${total}</span>
+          <i class="fa-solid fa-chevron-down order-header-icon"></i>
+        </div>
+      `;
+
+      const body = document.createElement('div');
+      body.className = 'order-body';
+
+      const productsHTML = (order.line_items || []).map(item => `
+        <div class="product-row">
+          <span>${item.name || 'Product'}<span style="color:#6b7280;"> (#${item.product_id || ''})</span></span>
+          <span class="product-qty">× ${item.quantity}</span>
+        </div>
+      `).join('') || '<div style="font-size:12px;color:#6b7280;">No products</div>';
+
+      const customerSection = document.createElement('div');
+      customerSection.className = 'detail-section';
+      customerSection.innerHTML = `
+        <h4>Customer</h4>
+        <div class="detail-item">
+          <span class="detail-label">Name:</span><span>${name}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Email:</span><span>${billing.email || 'N/A'}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Phone:</span><span>${billing.phone || 'N/A'}</span>
+        </div>
+      `;
+
+      const addressSection = document.createElement('div');
+      addressSection.className = 'detail-section';
+      addressSection.innerHTML = `
+        <h4>Address</h4>
+        <div class="detail-item">
+          <span class="detail-label">Address:</span><span>${billing.address_1 || 'N/A'}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">City / Zone:</span><span>${billing.zone || billing.city || 'N/A'}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Country:</span><span>${billing.country || 'N/A'}</span>
+        </div>
+      `;
+
+      const orderInfoSection = document.createElement('div');
+      orderInfoSection.className = 'detail-section';
+      orderInfoSection.innerHTML = `
+        <h4>Order info</h4>
+        <div class="detail-item">
+          <span class="detail-label">Total:</span><span>${total}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Payment:</span><span>${order.payment_method_title || 'N/A'}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Status:</span><span style="text-transform:capitalize;">${order.status}</span>
+        </div>
+      `;
+
+      const productsSection = document.createElement('div');
+      productsSection.className = 'detail-section';
+      productsSection.innerHTML = `
+        <h4>Products (${(order.line_items || []).length})</h4>
+        <div class="products-box">
+          ${productsHTML}
+        </div>
+      `;
+
+      const actionsRow = document.createElement('div');
+      actionsRow.className = 'actions-row';
+      actionsRow.innerHTML = `
+        <button class="btn btn-sm btn-edit">
+          <i class="fa-solid fa-pen-to-square"></i> Edit order
+        </button>
+        <button class="btn btn-sm btn-copy">
+          <i class="fa-solid fa-copy"></i> Copy address
+        </button>
+        <button class="btn btn-sm btn-wa">
+          <i class="fa-brands fa-whatsapp"></i> Customer
+        </button>
+      `;
+
+      body.appendChild(customerSection);
+      body.appendChild(addressSection);
+      body.appendChild(orderInfoSection);
+      body.appendChild(productsSection);
+      body.appendChild(actionsRow);
+
+      card.appendChild(header);
+      card.appendChild(body);
+      container.appendChild(card);
+
+      // Expand / collapse
+      header.addEventListener('click', () => {
+        card.classList.toggle('expanded');
+      });
+
+      const [editBtn, copyBtn, waBtn] = actionsRow.querySelectorAll('button');
+
+      editBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openEditOrder(order.id);
+      });
+
+      copyBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const text = formatAddressForCopy(order);
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('Address copied to clipboard', 'success');
+        }).catch(() => {
+          showToast('Failed to copy address', 'error');
+        });
+      });
+
+      waBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const phoneRaw = billing.phone || '';
+        if (!phoneRaw) {
+          showToast('Customer phone not available', 'error');
+          return;
+        }
+        const msg = `Hello ${name}, your order #${order.id} is being processed.`;
+        const phone = phoneRaw.replace(/[^0-9+]/g, '');
+        const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+        window.open(url, '_blank');
+      });
+    });
+  }
+
+  function formatAddressForCopy(order) {
+    const billing = order.billing || {};
+    const name = `${billing.first_name || ''} ${billing.last_name || ''}`.trim();
+    const phone = billing.phone || '';
+    const address = billing.address_1 || '';
+    const city = billing.zone || billing.city || '';
+    const country = billing.country || '';
+    return [
+      `Order #${order.id}`,
+      name ? `Name: ${name}` : '',
+      phone ? `Phone: ${phone}` : '',
+      address ? `Address: ${address}` : '',
+      city ? `Zone / City: ${city}` : '',
+      country ? `Country: ${country}` : ''
+    ].filter(Boolean).join('\n');
+  }
+
+
+  async function loadCustomerAddressesForEdit(order) {
+  const customerId = order.customer_id;
+  const select = document.getElementById('editSavedAddress');
+  if (!select) return;
+
+  select.innerHTML = '<option value="">Keep current address</option>';
+
+  if (!customerId) {
+    select.disabled = true;
+    return;
+  }
+
+  try {
+    const url = `${API_BASE}/wp-json/scl/v1/users/${customerId}/addresses`;
+    const res = await apiFetch(url, { method: 'GET' });
+    const addresses = (res && res.data) || [];
+
+    state.editAddresses = Array.isArray(addresses) ? addresses : [];
+
+    if (!state.editAddresses.length) {
+      select.disabled = true;
+      return;
+    }
+
+    state.editAddresses.forEach(addr => {
+      const opt = document.createElement('option');
+      opt.value = addr.id;
+      opt.textContent = `${addr.address_name} - ${addr.zone || ''}`.trim();
+      select.appendChild(opt);
+    });
+
+    select.value = '';   // افتراضيًا لا نغير العنوان
+    select.disabled = false;
+
+  } catch (error) {
+    log('edit', 'Failed to load customer addresses', error);
+    select.disabled = true;
+  }
+}
+
+
+
+// ==================== EDIT ORDER ====================
+function openEditOrder(orderId) {
+  const order = state.orders.find(o => o.id === orderId);
+  if (!order) {
+    showToast('Order not found in memory', 'error');
+    return;
+  }
+
+  // 👈 حدّد إذا كان FF Order (عليه meta _ffw_warehouse_id)
+  const isFfOrder =
+    Array.isArray(order.meta_data) &&
+    (order.meta_data.some(m => m.key === '_ffw_warehouse_id') ||
+     order.meta_data.some(m => m.key === '_billing_zone'));
+
+  state.editOrder    = order;
+  state.editIsFfOrder = isFfOrder; // نخزّنها في الـ state
+
+  // 👈 استخرج رقم المخزن من الميتا إن وجد
+  let warehouseId = null;
+  if (Array.isArray(order.meta_data)) {
+    const metaWh = order.meta_data.find(m => m.key === '_ffw_warehouse_id');
+    if (metaWh && metaWh.value) {
+      const parsed = parseInt(metaWh.value, 10);
+      if (!isNaN(parsed) && parsed > 0) {
+        warehouseId = parsed;
+      }
+    }
+  }
+  state.editWarehouseId = warehouseId;
+
+  log('edit', 'Open edit order', { order, isFfOrder, warehouseId });
+
+  state.editQuantities = {};
+  state.editNewProducts = [];
+  renderNewProductsList();
+
+  log('edit', 'Open edit order', order);
+
+  // Title
+  $('editOrderTitle').textContent = `Edit Order #${order.id}`;
+
+  // Status
+  $('editStatus').value = order.status || 'processing';
+
+  const billing = order.billing || {};
+  $('editFirstName').value      = billing.first_name || '';
+  $('editLastName').value       = billing.last_name || '';
+  $('editPhone').value          = billing.phone || '';
+  $('editPhoneSecondary').value = billing.phone_secondary || '';
+  $('editAddressName').value    = billing.address_name || billing.company || '';
+  $('editAddress1').value       = billing.address_1 || '';
+  $('editAddress2').value       = billing.address_2 || '';
+  $('editDeliveryDate').value   = billing.delivery_date || '';
+  $('editDeliveryTime').value   = billing.delivery_time || '';
+  $('editLocationUrl').value    = billing.location_url || '';
+  $('editNotesCustomer').value  = billing.notes_customer || '';
+  $('editNotesInternal').value  = billing.notes_internal || '';
+
+  // خزن scl_address_id واللوكيشن في الـ state
+  state.editSclAddressId = billing.scl_address_id || null;
+  state.editLocationUrl  = billing.location_url || '';
+  state.editLocationLat  = billing.location_lat || '';
+  state.editLocationLng  = billing.location_lng || '';
+
+  loadCustomerAddressesForEdit(order);
+
+  loadZonesForDashboard().then(zones => {
+    const select = document.getElementById('editZoneSelect');
+    if (!select) return;
+
+    select.innerHTML = '<option value="">Select zone</option>';
+
+    const currentZone = billing.zone || billing.city || '';
+
+    zones.forEach(zone => {
+      const opt = document.createElement('option');
+      opt.value = zone.zone_name; // هذا هو المفتاح الذي يستخدمه SCL للشحن
+      opt.textContent = `${zone.zone_name} (${zone.shipping_cost} EGP)`;
+      if (currentZone && (zone.zone_name === currentZone || zone.zone_name_ar === currentZone)) {
+        opt.selected = true;
+      }
+      select.appendChild(opt);
+    });
+  }).catch(err => {
+    console.error('Dashboard: loadZonesForDashboard failed', err);
+  });
+
+  // Products
+  const list = $('editProductsList');
+  list.innerHTML = '';
+  (order.line_items || []).forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'modal-product-row';
+    const lineId = item.id;
+
+    const currentQty = item.quantity || 0;
+    state.editQuantities[lineId] = currentQty;
+
+    const currency = order.currency || 'EGP';
+
+    // سعر الوحدة (الحالي بعد الخصم غالباً)
+    const basePrice = item.price
+      ? parseFloat(item.price)
+      : (item.subtotal && item.quantity
+        ? parseFloat(item.subtotal) / item.quantity
+        : 0);
+
+    // إجمالى السطر قبل وبعد الخصم
+    const lineSubtotal = item.subtotal ? parseFloat(item.subtotal) : 0;
+    const lineTotal    = item.total    ? parseFloat(item.total)    : 0;
+
+    const hasLineDiscount =
+      lineSubtotal > 0 &&
+      lineTotal > 0 &&
+      lineSubtotal !== lineTotal;
+
+    row.innerHTML = `
+      <div>
+        <div style="font-weight:600;">${item.name || 'Product'}</div>
+        <div style="font-size:11px;color:#6b7280;">#${item.product_id || ''}</div>
+        ${
+          hasLineDiscount
+            ? `
+          <div style="font-size:11px;color:#b91c1c;margin-top:2px;">
+            <span style="text-decoration: line-through; opacity:0.7;">
+              ${lineSubtotal.toFixed(2)} ${currency}
+            </span>
+            <span style="margin-left:4px;">
+              ${lineTotal.toFixed(2)} ${currency}
+            </span>
+          </div>
+          `
+            : ''
+        }
+      </div>
+      <div style="font-size:12px;">
+        ${basePrice.toFixed(2)} ${currency}
+      </div>
+      <div class="modal-product-qty">
+        <input type="number" min="0" class="qty-input"
+               data-line-id="${lineId}" value="${currentQty}">
+      </div>
+    `;
+
+    list.appendChild(row);
+  });
+
+  // Attach qty change listeners
+  list.querySelectorAll('.qty-input').forEach(input => {
+    input.addEventListener('input', () => {
+      const id = parseInt(input.dataset.lineId, 10);
+      let val = parseInt(input.value, 10);
+      if (isNaN(val) || val < 0) val = 0;
+      state.editQuantities[id] = val;
+      log('edit', 'Qty changed', { line_item_id: id, qty: val });
+      recalcPreviewTotals();
+    });
+  });
+
+  // First preview
+  recalcPreviewTotals();
+
+  // Show modal
+  $('editOrderBackdrop').classList.add('active');
+}
+
+
+ function closeEditOrder() {
+  state.editOrder = null;
+  state.editQuantities = {};
+  state.editNewProducts = [];
+  $('editOrderBackdrop').classList.remove('active');
+}
+
+
+function recalcPreviewTotals() {
+  const order = state.editOrder;
+  if (!order) return;
+
+  // Subtotal قبل الخصم
+  let subtotalBeforeDiscount = 0;
+
+  // أسطر المنتجات الحالية (مع الكميات المعدّلة)
+  (order.line_items || []).forEach(item => {
+    const lineId = item.id;
+    const qty = state.editQuantities[lineId] ?? item.quantity ?? 0;
+
+    let unitSubtotal = 0;
+
+    if (item.subtotal && item.quantity) {
+      // subtotal هو إجمالى السطر قبل الخصم → نجيب سعر الوحدة منه
+      unitSubtotal = parseFloat(item.subtotal) / parseFloat(item.quantity);
+    } else if (item.price) {
+      unitSubtotal = parseFloat(item.price);
+    } else if (item.total && item.quantity) {
+      // fallback لو subtotal مش راجع
+      unitSubtotal = parseFloat(item.total) / parseFloat(item.quantity);
+    }
+
+    subtotalBeforeDiscount += unitSubtotal * qty;
+  });
+
+  // المنتجات الجديدة المضافة من الـ Dashboard (ما عليهاش كوبون حتى الآن)
+  (state.editNewProducts || []).forEach(p => {
+    const price = parseFloat(p.price || 0) || 0;
+    const qty   = parseFloat(p.quantity || 0) || 0;
+    subtotalBeforeDiscount += price * qty;
+  });
+
+  const shipping = parseFloat(order.shipping_total || 0) || 0;
+  const feeTotal = (order.fee_lines || []).reduce(
+    (sum, fee) => sum + (parseFloat(fee.total || 0) || 0),
+    0
+  );
+
+  // قيمة الخصم من الطلب (كما هى من Woo)
+  const discount = parseFloat(order.discount_total || 0) || 0;
+
+  // Total = Subtotal قبل الخصم + الشحن + الرسوم - الخصم
+  const total = subtotalBeforeDiscount + shipping + feeTotal - discount;
+
+  $('previewSubtotal').textContent =
+    subtotalBeforeDiscount.toFixed(2) + ' ' + (order.currency || 'EGP');
+  $('previewShipping').textContent =
+    shipping.toFixed(2) + ' ' + (order.currency || 'EGP');
+  $('previewFees').textContent =
+    feeTotal.toFixed(2) + ' ' + (order.currency || 'EGP');
+  $('previewDiscount').textContent =
+    '-' + discount.toFixed(2) + ' ' + (order.currency || 'EGP');
+  $('previewTotal').textContent =
+    total.toFixed(2) + ' ' + (order.currency || 'EGP');
+
+  log('edit', 'Preview totals', {
+    subtotalBeforeDiscount,
+    shipping,
+    feeTotal,
+    discount,
+    total
+  });
+}
+
+
+async function updateCurrentCustomerAddress() {
+  const order = state.editOrder;
+  if (!order) {
+    showToast('No order in edit state', 'error');
+    return;
+  }
+
+  const sclId = (state.editSclAddressId || order.billing.scl_address_id || '').toString().trim();
+  if (!sclId) {
+    showToast('No saved address linked to this order', 'warning');
+    return;
+  }
+
+  const addressData = {
+    user_id: order.customer_id,
+    address_name: $('editAddressName').value.trim(),
+    customer_name: $('editFirstName').value.trim(),
+    phone_primary: $('editPhone').value.trim(),
+    phone_secondary: $('editPhoneSecondary').value.trim(),
+    zone: $('editZoneSelect').value.trim(),
+    address_details: $('editAddress1').value.trim(),
+    notes_customer: $('editNotesCustomer').value.trim(),
+    notes_internal: $('editNotesInternal').value.trim(),
+    location_url: $('editLocationUrl').value.trim()
+  };
+
+  setGlobalLoading(true);
+  try {
+    const url = `${API_BASE}/wp-json/scl/v1/addresses/${sclId}`;
+    await apiFetch(url, {
+      method: 'PUT',
+      body: JSON.stringify(addressData)
+    });
+    showToast('Customer address updated in SCL', 'success');
+
+    // إعادة تحميل عناوين العميل لإظهار التحديث
+    await loadCustomerAddressesForEdit(order);
+  } catch (error) {
+    Logger.error('Failed to update SCL address', error);
+    showToast(error.message || 'Failed to update customer address', 'error');
+  } finally {
+    setGlobalLoading(false);
+  }
+}
+
+
+async function updateCurrentCustomerAddress() {
+  const order = state.editOrder;
+  if (!order) {
+    showToast('No order in edit state', 'error');
+    return;
+  }
+
+  const sclId = (state.editSclAddressId || order.billing.scl_address_id || '').toString().trim();
+  if (!sclId) {
+    showToast('No saved address linked to this order', 'warning');
+    return;
+  }
+
+  const addressData = {
+    user_id: order.customer_id,
+    address_name: $('editAddressName').value.trim(),
+    customer_name: $('editFirstName').value.trim(),
+    phone_primary: $('editPhone').value.trim(),
+    phone_secondary: $('editPhoneSecondary').value.trim(),
+    zone: $('editZoneSelect').value.trim(),
+    address_details: $('editAddress1').value.trim(),
+    notes_customer: $('editNotesCustomer').value.trim(),
+    notes_internal: $('editNotesInternal').value.trim(),
+    location_url: $('editLocationUrl').value.trim()
+  };
+
+  setGlobalLoading(true);
+  try {
+    const url = `${API_BASE}/wp-json/scl/v1/addresses/${sclId}`;
+    await apiFetch(url, {
+      method: 'PUT',
+      body: JSON.stringify(addressData)
+    });
+    showToast('Customer address updated in SCL', 'success');
+
+    // إعادة تحميل عناوين العميل لإظهار التحديث
+    await loadCustomerAddressesForEdit(order);
+  } catch (error) {
+    Logger.error('Failed to update SCL address', error);
+    showToast(error.message || 'Failed to update customer address', 'error');
+  } finally {
+    setGlobalLoading(false);
+  }
+}
+
+
+async function assignSelectedSavedAddressToOrder() {
+  const order = state.editOrder;
+  if (!order) {
+    showToast('No order in edit state', 'error');
+    return;
+  }
+
+  const select = $('editSavedAddress');
+  if (!select || !select.value) {
+    showToast('Please select a saved address first', 'warning');
+    return;
+  }
+
+  const selectedId = parseInt(select.value, 10);
+  if (!Array.isArray(state.editAddresses) || !state.editAddresses.length) {
+    showToast('No saved addresses loaded', 'error');
+    return;
+  }
+
+  const addr = state.editAddresses.find(a => parseInt(a.id, 10) === selectedId);
+  if (!addr) {
+    showToast('Selected address not found', 'error');
+    return;
+  }
+
+  // 1) املى الحقول من العنوان المختار
+  $('editFirstName').value       = addr.customer_name || '';
+  $('editLastName').value        = '';
+  $('editPhone').value           = addr.phone_primary || '';
+  $('editPhoneSecondary').value  = addr.phone_secondary || '';
+  $('editAddressName').value     = addr.address_name || '';
+  $('editAddress1').value        = addr.address_details || addr.address_name || '';
+  $('editAddress2').value        = '';
+  $('editZoneSelect').value      = addr.zone || '';
+  $('editNotesCustomer').value   = addr.notes_customer || '';
+  $('editNotesInternal').value   = addr.notes_internal || '';
+  $('editLocationUrl').value     = addr.location_url || '';
+
+  // 2) حدّث state بالعنوان المختار
+  state.editLocationUrl  = addr.location_url || '';
+  state.editLocationLat  = addr.location_lat || '';
+  state.editLocationLng  = addr.location_lng || '';
+  state.editSclAddressId = selectedId;
+
+  recalcPreviewTotals();
+
+  // 3) نفّذ حفظ الطلب الآن بحيث:
+  // - billing تُرسل بالقيم المعبّاة
+  // - scl_address_id = selectedId
+  await saveEditedOrder();
+}
+
+
+async function applyCouponToOrder() {
+  const order = state.editOrder;
+  if (!order) {
+    showToast('No order in edit state', 'error');
+    return;
+  }
+
+  const code = $('editCouponCode').value.trim();
+  if (!code) {
+    showToast('Please enter coupon code', 'warning');
+    return;
+  }
+
+  setGlobalLoading(true);
+  try {
+    const url = `${API_BASE}${WC_API_BASE}/orders/${order.id}`;
+
+    // WooCommerce REST: coupon_lines = [{ code: "MYCODE" }]
+    // Woo سيحسب الخصم ويحدث discount_total / total تلقائيًا. [web:229]
+    const payload = {
+      coupon_lines: [
+        { code }
+      ]
+    };
+
+    log('edit', 'Applying coupon to order', { orderId: order.id, code, payload });
+
+    const updated = await apiFetch(url, {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    });
+
+    log('edit', 'Order after coupon apply', updated);
+    showToast('Coupon applied successfully', 'success');
+
+    // اغلق المودال وحدث القائمة عشان تشوف الإجمالي الجديد
+    closeEditOrder();
+    await loadOrders();
+  } catch (error) {
+    console.error('Failed to apply coupon', error);
+    showToast(error.message || 'Failed to apply coupon', 'error');
+  } finally {
+    setGlobalLoading(false);
+  }
+}
+
+async function removeCouponFromOrder() {
+  const order = state.editOrder;
+  if (!order) {
+    showToast('No order in edit state', 'error');
+    return;
+  }
+
+  setGlobalLoading(true);
+  try {
+    const url = `${API_BASE}${WC_API_BASE}/orders/${order.id}`;
+
+    // لإزالة كل الكوبونات من الطلب نرسل coupon_lines = []
+    const payload = {
+      coupon_lines: []
+    };
+
+    log('edit', 'Removing coupons from order', { orderId: order.id, payload });
+
+    const updated = await apiFetch(url, {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    });
+
+    log('edit', 'Order after coupon removal', updated);
+    showToast('Coupon removed', 'success');
+
+    closeEditOrder();
+    await loadOrders();
+  } catch (error) {
+    console.error('Failed to remove coupon', error);
+    showToast(error.message || 'Failed to remove coupon', 'error');
+  } finally {
+    setGlobalLoading(false);
+  }
+}
+  
+
+async function renderNewProductsList() {
+  const container = $('editNewProductsList');
+  if (!container) return;
+
+  if (!state.editNewProducts || state.editNewProducts.length === 0) {
+    container.innerHTML = '<div style="font-size:12px;color:#6b7280;">No new products</div>';
+    return;
+  }
+
+  container.innerHTML = state.editNewProducts.map(p => `
+    <div class="product-row">
+      <span>${p.name || 'Product'} <span style="color:#6b7280;">(#${p.product_id})</span></span>
+      <span class="product-qty">× ${p.quantity}</span>
+      <span style="font-size:12px;color:#6b7280;">@ ${p.price.toFixed(2)} ${state.editOrder?.currency || 'EGP'}</span>
+    </div>
+  `).join('');
+}
+
+// دالة مساعدة لعمل debounce على البحث
+function debounce(fn, delay = 300) {
+  let timer = null;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+// البحث عن منتجات من WooCommerce REST API بالاسم
+async function searchProductsByName(term) {
+  if (!term || term.length < 2) {
+    return [];
+  }
+
+  const url = new URL(API_BASE + WC_API_BASE + '/products');
+  url.searchParams.set('per_page', '20');
+  url.searchParams.set('search', term);
+
+  const products = await apiFetch(url.toString(), { method: 'GET' });
+  return Array.isArray(products) ? products : [];
+}
+
+// عرض نتائج البحث في القائمة
+function renderProductSearchResults(products) {
+  const box = $('addProductResults');
+  if (!box) return;
+
+  if (!products.length) {
+    box.innerHTML = '<div style="font-size:12px;color:#6b7280;padding:6px 8px;">No products found</div>';
+    box.style.display = 'block';
+    return;
+  }
+
+  const order = state.editOrder;
+  const currency = order?.currency || 'EGP';
+
+  box.innerHTML = products.map(p => {
+    const price = parseFloat(p.price || 0) || 0;
+    return `
+      <div class="product-row" data-product-id="${p.id}"
+           data-product-name="${p.name}"
+           data-product-price="${price}">
+        <span>${p.name}</span>
+        <span style="font-size:12px;color:#6b7280;">${price.toFixed(2)} ${currency}</span>
+      </div>
+    `;
+  }).join('');
+
+  box.style.display = 'block';
+
+  // ربط كليك على كل نتيجة
+  box.querySelectorAll('.product-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const id    = parseInt(row.dataset.productId, 10);
+      const name  = row.dataset.productName;
+      const price = parseFloat(row.dataset.productPrice || 0) || 0;
+
+      $('addProductId').value = id;
+      $('addProductSelectedLabel').textContent =
+        `${name} (#${id}) - ${price.toFixed(2)} ${currency}`;
+
+      // أخفي القائمة ونظّف البحث
+      $('addProductResults').style.display = 'none';
+      $('addProductSearch').value = '';
+    });
+  });
+}
+
+// هندل البحث أثناء الكتابة في input
+const handleProductSearchInput = debounce(async () => {
+  const term = $('addProductSearch').value.trim();
+  if (!term || term.length < 2) {
+    $('addProductResults').style.display = 'none';
+    $('addProductResults').innerHTML = '';
+    return;
+  }
+
+  try {
+    setGlobalLoading(true);
+    const products = await searchProductsByName(term);
+    renderProductSearchResults(products);
+  } catch (e) {
+    console.error('Product search failed', e);
+    showToast(e.message || 'Failed to search products', 'error');
+  } finally {
+    setGlobalLoading(false);
+  }
+}, 300);
+
+
+// تحقق من توافر الكمية المطلوبة في نفس مخزن الطلب (من بلاجن FF)
+async function checkWarehouseStockForProduct(productId, requiredQty) {
+  const warehouseId = state.editWarehouseId;
+
+  if (!warehouseId) {
+    log('stock', 'No warehouseId on order', { productId, requiredQty });
+    showToast('No warehouse linked to this order. Cannot validate stock.', 'error');
+    return false;
+  }
+
+  const url = `${API_BASE}/wp-json/ff/v1/warehouses/${warehouseId}/products?product_id=${productId}`;
+  log('stock', 'Checking warehouse stock', { warehouseId, productId, requiredQty, url });
+
+  try {
+    const res = await apiFetch(url, { method: 'GET' });
+    const rows = (res && res.data) || [];
+
+    log('stock', 'Warehouse products response', rows);
+
+    if (!Array.isArray(rows) || rows.length === 0) {
+      // لا يوجد سجل لهذا المنتج في هذا المخزن → المتاح 0
+      return false;
+    }
+
+    const row = rows[0];
+    const available = parseFloat(row.qty || 0) || 0;
+    const reserved  = parseFloat(row.reserved_qty || 0) || 0;
+
+    log('stock', 'Available from FF', {
+      warehouse_id: row.warehouse_id,
+      product_id: row.product_id,
+      available,
+      reserved
+    });
+
+    return available >= requiredQty;
+  } catch (e) {
+    console.error('Stock check failed', e);
+    showToast(e.message || 'Failed to check warehouse stock', 'error');
+    return false;
+  }
+}
+
+
+
+async function addNewProductToEditOrder() {
+  const order = state.editOrder;
+  if (!order) {
+    showToast('No order in edit state', 'error');
+    return;
+  }
+
+  // نسمح بإضافة منتجات فقط لطلبات FF (عشان المخزن والمخزون)
+  if (!state.editIsFfOrder) {
+    showToast('Only FF Warehouses orders can have products added here.', 'warning');
+    return;
+  }
+
+  const idVal  = $('addProductId').value.trim();
+  const qtyVal = $('addProductQty').value.trim();
+
+  const productId = parseInt(idVal, 10);
+  const qty       = parseFloat(qtyVal);
+
+  if (!productId || productId <= 0) {
+    showToast('Please select a product from the list', 'warning');
+    return;
+  }
+  if (!qty || qty <= 0) {
+    showToast('Please enter a valid quantity', 'warning');
+    return;
+  }
+
+  setGlobalLoading(true);
+  try {
+    // 👇 تحقق من توافر الكمية في مخزن الطلب
+    const hasStock = await checkWarehouseStockForProduct(productId, qty);
+    if (!hasStock) {
+      showToast('Not enough stock in this warehouse for the requested quantity', 'error');
+      return;
+    }
+
+    // جيب بيانات المنتج من WooCommerce REST API عشان السعر والاسم
+    const url = `${API_BASE}${WC_API_BASE}/products/${productId}`;
+    const product = await apiFetch(url, { method: 'GET' });
+
+    const price = parseFloat(product.price || 0) || 0;
+    const name  = product.name || `Product #${productId}`;
+
+    // لو المنتج مضاف قبل كمنتج جديد، حدث الكمية بدل التكرار
+    const existing = state.editNewProducts.find(p => p.product_id === productId);
+    if (existing) {
+      existing.quantity += qty;
+    } else {
+      state.editNewProducts.push({
+        product_id: productId,
+        name,
+        quantity: qty,
+        price
+      });
+    }
+
+    // إعادة تعيين الحقول
+    $('addProductId').value = '';
+    $('addProductQty').value = '1';
+    $('addProductSelectedLabel').textContent = 'No product selected';
+    $('addProductResults').style.display = 'none';
+    $('addProductResults').innerHTML = '';
+
+    await renderNewProductsList();
+    recalcPreviewTotals();
+
+    showToast('Product added to order (pending save)', 'success');
+    log('edit', 'New products state', state.editNewProducts);
+  } catch (error) {
+    console.error('Failed to add product', error);
+    showToast(error.message || 'Failed to add product', 'error');
+  } finally {
+    setGlobalLoading(false);
+  }
+}
+
+
+async function saveEditedOrder() { 
+  const order = state.editOrder;
+  if (!order) {
+    showToast('No order in edit state', 'error');
+    return;
+  }
+
+  const isFfOrder = !!state.editIsFfOrder;
+
+  const newStatus      = $('editStatus').value;
+  const firstName      = $('editFirstName').value.trim();
+  const lastName       = $('editLastName').value.trim();
+  const phone          = $('editPhone').value.trim();
+  const phoneSecondary = $('editPhoneSecondary').value.trim();
+  const addressName    = $('editAddressName').value.trim();
+  const address1       = $('editAddress1').value.trim();
+  const address2       = $('editAddress2').value.trim();
+  const zone           = $('editZoneSelect').value.trim();
+  const deliveryDate   = $('editDeliveryDate').value;
+  const deliveryTime   = $('editDeliveryTime').value;
+  const locationUrlInp = $('editLocationUrl').value.trim();
+  const notesCustomer  = $('editNotesCustomer').value.trim();
+  const notesInternal  = $('editNotesInternal').value.trim();
+
+  // حدّث state للّوكيشن
+  state.editLocationUrl = locationUrlInp || state.editLocationUrl || order.billing.location_url || '';
+  const locationUrl = state.editLocationUrl;
+  const locationLat = state.editLocationLat || order.billing.location_lat || '';
+  const locationLng = state.editLocationLng || order.billing.location_lng || '';
+
+  // تحديد scl_address_id
+  let sclAddressId = null;
+  const savedAddressSelect = document.getElementById('editSavedAddress');
+
+  if (savedAddressSelect && savedAddressSelect.value) {
+    sclAddressId = parseInt(savedAddressSelect.value, 10);
+  } else if (state.editSclAddressId) {
+    sclAddressId = parseInt(state.editSclAddressId, 10);
+  } else if (order.billing.scl_address_id) {
+    sclAddressId = parseInt(order.billing.scl_address_id, 10);
+  }
+
+  if (sclAddressId) {
+    state.editSclAddressId = sclAddressId;
+  }
+
+  // تجهيز line_items المعدّلة للأسطر الموجودة
+  const updatedLineItems = [];
+  (order.line_items || []).forEach(item => {
+    const lineId = item.id;
+    const newQty = state.editQuantities[lineId] ?? item.quantity ?? 0;
+    if (newQty !== item.quantity) {
+      updatedLineItems.push({
+        id: lineId,
+        quantity: newQty
+      });
+    }
+  });
+
+  // منع تغيير الكميات / إضافة منتجات لطلبات غير FF
+  const hasQtyChanges = updatedLineItems.length > 0;
+  const hasNewProducts = Array.isArray(state.editNewProducts) && state.editNewProducts.length > 0;
+
+  if (!isFfOrder && (hasQtyChanges || hasNewProducts)) {
+    showToast('This order is not managed by FF Warehouses. Product quantities and new products cannot be edited here.', 'warning');
+    return;
+  }
+
+  const payload = {
+    status: newStatus,
+    billing: {
+      ...order.billing,
+
+      // الحقول القياسية
+      first_name: firstName,
+      last_name:  lastName,
+      phone:      phone,
+      address_1:  address1,
+      address_2:  address2,
+      city:       zone,
+      zone:       zone,
+      company:    addressName || order.billing.company || '',
+      country:    order.billing.country || 'EG',
+      state:      order.billing.state   || '',
+      postcode:   order.billing.postcode || '',
+
+      // حقول SCL الإضافية
+      phone_secondary: phoneSecondary,
+      address_name:    addressName,
+      notes_customer:  notesCustomer,
+      notes_internal:  notesInternal,
+      delivery_date:   deliveryDate,
+      delivery_time:   deliveryTime,
+
+      // اللوكيشن
+      location_url: locationUrl,
+      location_lat: locationLat,
+      location_lng: locationLng,
+
+      // ربط العنوان المحفوظ
+      scl_address_id: sclAddressId
+    },
+    shipping: {
+      ...order.shipping,
+      first_name: firstName,
+      last_name:  lastName,
+      phone:      phone,
+      address_1:  address1,
+      address_2:  address2,
+      city:       zone,
+      country:    order.shipping.country || order.billing.country || 'EG',
+      state:      order.shipping.state   || order.billing.state   || '',
+      postcode:   order.shipping.postcode || order.billing.postcode || ''
+    }
+  };
+
+  // لو فيه تعديل كميات، أضف line_items للأسطر الموجودة
+  if (updatedLineItems.length > 0) {
+    payload.line_items = updatedLineItems;
+  }
+
+  // لو فيه منتجات جديدة لطلبات FF، أضفها كـ product_id + quantity [web:64]
+  if (isFfOrder && hasNewProducts) {
+    const newItems = state.editNewProducts
+      .filter(p => p.product_id && p.quantity > 0)
+      .map(p => ({
+        product_id: p.product_id,
+        quantity:   p.quantity
+      }));
+
+    if (newItems.length > 0) {
+      payload.line_items = (payload.line_items || []).concat(newItems);
+    }
+  }
+
+  // لوج للتأكد من القيم المرسلة
+  log('edit', 'Saving edited order payload', { 
+    isFfOrder, 
+    payload,
+    billing_debug: payload.billing
+  });
+
+  setGlobalLoading(true);
+  try {
+    let url;
+    if (isFfOrder) {
+      // طلب FF Warehouses → يروح لبلاجن FF
+      url = `${API_BASE}/wp-json/ff/v1/orders/${order.id}`;
+    } else {
+      // طلب عادي → نحدّث الحالة/العنوان فقط عن طريق WooCommerce
+      url = `${API_BASE}${WC_API_BASE}/orders/${order.id}`;
+    }
+
+    const updated = await apiFetch(url, {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    });
+
+    log('edit', 'Order updated response', updated);
+    showToast('Order updated successfully', 'success');
+
+    // صفّر قائمة المنتجات الجديدة في الذاكرة بعد الحفظ
+    state.editNewProducts = [];
+
+    closeEditOrder();
+    await loadOrders();
+  } catch (error) {
+    console.error('Failed to update order', error);
+    showToast(error.message || 'Failed to update order', 'error');
+  } finally {
+    setGlobalLoading(false);
+  }
+}
+
+
+
+
+  // ==================== EVENTS & INIT ====================
+  function initEventListeners() {
+    $('loginBtn').onclick = handleLogin;
+    $('loginPassword').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleLogin();
+    });
+
+    $('logoutBtn').onclick = handleLogout;
+    $('refreshBtn').onclick = loadOrders;
+
+    $('applyFiltersBtn').onclick = applyFilters;
+    $('clearFiltersBtn').onclick = clearFilters;
+
+    $('debugBtn').onclick = () => {
+      state.debug = !state.debug;
+      $('debugBtn').innerHTML = state.debug
+        ? '<i class="fa-solid fa-bug"></i> Debug ON'
+        : '<i class="fa-solid fa-bug-slash"></i> Debug OFF';
+      showToast('Debug mode ' + (state.debug ? 'enabled' : 'disabled'), 'info');
+    };
+
+    // Edit modal
+    $('addProductToOrderBtn').onclick = addNewProductToEditOrder;
+  $('addProductSearch').addEventListener('input', handleProductSearchInput);
+
+    $('editOrderCloseBtn').onclick = closeEditOrder;
+    $('editOrderCancelBtn').onclick = closeEditOrder;
+    $('editOrderBackdrop').addEventListener('click', (e) => {
+      if (e.target.id === 'editOrderBackdrop') {
+        closeEditOrder();
+      }
+    });
+    $('editOrderSaveBtn').onclick = saveEditedOrder;
+    
+    // زر جديد لتحديث عنوان العميل في SCL
+    $('updateCustomerAddressBtn').onclick = updateCurrentCustomerAddress;
+    $('assignSavedAddressBtn').onclick = assignSelectedSavedAddressToOrder;
+    $('applyCouponBtn').onclick = applyCouponToOrder;
+    $('removeCouponBtn').onclick = removeCouponFromOrder;
+
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    initEventListeners();
+    await tryAutoLogin();
+  });
+</script>
+</body>
+</html>
