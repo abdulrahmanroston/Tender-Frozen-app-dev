@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2.2.1'; //
+const CACHE_VERSION = 'v3.0.0'; //
 const STATIC_CACHE = `tenderfrozen-static-${CACHE_VERSION}`;
 
 // الملفات الثابتة الأساسية لتحميل التطبيق كـ PWA
