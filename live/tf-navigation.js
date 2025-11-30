@@ -1,10 +1,10 @@
 // Navigation configuration
 const navConfig = {
   pages: [
-    { id: 'orders', name: 'Orders', icon: 'fas fa-shopping-cart', url: 'https://darkviolet-antelope-523488.hostingersite.com/admin-app/', relativePath: '' },
-    { id: 'Warehouses', name: 'Warehouses', icon: 'fas fa-box', url: 'https://darkviolet-antelope-523488.hostingersite.com/admin-app/warehouses.html', relativePath: 'warehouses.html' },
-    { id: 'pos', name: 'POS', icon: 'fas fa-cash-register', url: 'https://darkviolet-antelope-523488.hostingersite.com/admin-app/pos.html', relativePath: 'pos.html' },
-    { id: 'accounting', name: 'Accounting', icon: 'fas fa-calculator', url: 'https://darkviolet-antelope-523488.hostingersite.com/admin-app/acc.html', relativePath: 'acc.html' },
+    { id: 'orders', name: 'Orders', icon: 'fas fa-shopping-cart', url: 'https://order.tenderfrozen.com/admin-app/', relativePath: '' },
+    { id: 'Warehouses', name: 'Warehouses', icon: 'fas fa-box', url: 'https://order.tenderfrozen.com/admin-app/warehouses.html', relativePath: 'warehouses.html' },
+    { id: 'pos', name: 'POS', icon: 'fas fa-cash-register', url: 'https://order.tenderfrozen.com/admin-app/pos.html', relativePath: 'pos.html' },
+    { id: 'accounting', name: 'Accounting', icon: 'fas fa-calculator', url: 'https://order.tenderfrozen.com/admin-app/acc.html', relativePath: 'acc.html' },
   ],
   menuTitle: 'Frozen Dashboard',
 };

@@ -3,16 +3,16 @@ const STATIC_CACHE = `tenderfrozen-static-${CACHE_VERSION}`;
 
 // الملفات الثابتة الأساسية لتحميل التطبيق كـ PWA
 const STATIC_FILES = [
-  'https://darkviolet-antelope-523488.hostingersite.com/admin-app/',
-  'https://darkviolet-antelope-523488.hostingersite.com/admin-app/index.html',
-  'https://darkviolet-antelope-523488.hostingersite.com/admin-app/pos.html', 
-  'https://darkviolet-antelope-523488.hostingersite.com/admin-app/warehouses.html',
-  'https://darkviolet-antelope-523488.hostingersite.com/admin-app/acc.html',
-  'https://darkviolet-antelope-523488.hostingersite.com/admin-app/tf-navigation.js',
-  'https://darkviolet-antelope-523488.hostingersite.com/admin-app/tf-navigation.css',
-  'https://darkviolet-antelope-523488.hostingersite.com/admin-app/icons/icon1.png',
-  'https://darkviolet-antelope-523488.hostingersite.com/admin-app/icons/icon2.png',
-  'https://darkviolet-antelope-523488.hostingersite.com/admin-app/manifest.json' =
+  'https://order.tenderfrozen.com/admin-app/',
+  'https://order.tenderfrozen.com/admin-app/index.html',
+  'https://order.tenderfrozen.com/admin-app/pos.html', 
+  'https://order.tenderfrozen.com/admin-app/warehouses.html',
+  'https://order.tenderfrozen.com/admin-app/acc.html',
+  'https://order.tenderfrozen.com/admin-app/tf-navigation.js',
+  'https://order.tenderfrozen.com/admin-app/tf-navigation.css',
+  'https://order.tenderfrozen.com/admin-app/icons/icon1.png',
+  'https://order.tenderfrozen.com/admin-app/icons/icon2.png',
+  'https://order.tenderfrozen.com/admin-app/manifest.json',
 ];
 
 // تثبيت Service Worker

@@ -1,23 +1,23 @@
 {
   "name": "TenderFrozen",
   "short_name": "Frozen Dashboard",
-  "start_url": "https://darkviolet-antelope-523488.hostingersite.com/admin-app/index.html",
+  "start_url": "https://order.tenderfrozen.com/admin-app/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1a73e8",
   "icons": [
     {
-      "src": "https://darkviolet-antelope-523488.hostingersite.com/admin-app/icons/icon1.png",
+      "src": "https://order.tenderfrozen.com/admin-app/icons/icon1.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://darkviolet-antelope-523488.hostingersite.com/admin-app/icons/icon2.png",
+      "src": "https://order.tenderfrozen.com/admin-app/icons/icon2.png",
       "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "https://darkviolet-antelope-523488.hostingersite.com/admin-app/icons/icon1.png",
+      "src": "https://order.tenderfrozen.com/admin-app/icons/icon1.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
