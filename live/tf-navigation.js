@@ -1,17 +1,14 @@
 // Navigation configuration
 const navConfig = {
   pages: [
-    { id: 'orders', name: 'Orders', icon: 'fas fa-shopping-cart', url: 'https://order.tenderfrozen.com/admin-app/', relativePath: '' },
-    { id: 'Warehouses', name: 'Warehouses', icon: 'fas fa-box', url: 'https://order.tenderfrozen.com/admin-app/warehouses.html', relativePath: 'warehouses.html' },
-    { id: 'pos', name: 'POS', icon: 'fas fa-cash-register', url: 'https://order.tenderfrozen.com/admin-app/pos.html', relativePath: 'pos.html' },
-    { id: 'accounting', name: 'Accounting', icon: 'fas fa-calculator', url: 'https://order.tenderfrozen.com/admin-app/acc.html', relativePath: 'acc.html' },
+    { id: 'orders', name: 'Orders', icon: 'fas fa-shopping-cart', url: 'https://tenderfrozen.com/admin-app/', relativePath: '' },
+    { id: 'Warehouses', name: 'Warehouses', icon: 'fas fa-box', url: 'https://tenderfrozen.com/admin-app/warehouses.html', relativePath: 'warehouses.html' },
+    { id: 'pos', name: 'POS', icon: 'fas fa-cash-register', url: 'https://tenderfrozen.com/admin-app/pos.html', relativePath: 'pos.html' },
+    { id: 'accounting', name: 'Accounting', icon: 'fas fa-calculator', url: 'https://tenderfrozen.com/admin-app/acc.html', relativePath: 'acc.html' },
   ],
   menuTitle: 'Frozen Dashboard',
 };
 
-
-
-// Function to get the relative path segment after /TenderFrozen/
 function getRelativePath() {
   let path = window.location.pathname;
   path = path.replace(/^\/+|\/+$/g, '');
@@ -22,93 +19,125 @@ function getRelativePath() {
   if (path.startsWith(basePath + '/')) {
     return path.substring(basePath.length + 1);
   }
-  console.warn(`Unexpected path structure: ${path}`);
   return '';
 }
 
-// Register Service Worker for PWA
+// Register Service Worker - بسيط جدًا
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
+    navigator.serviceWorker.register('/admin-app/sw.js', { scope: '/admin-app/' })
       .then(reg => {
-        console.log('Service Worker registered:', reg);
+        console.log('✅ Service Worker registered');
+        
         // Check for updates
         reg.addEventListener('updatefound', () => {
           const newWorker = reg.installing;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // New update available 
-              showUpdateButton();
-            }
-          });
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('🔄 New version available');
+                showUpdateNotification();
+              }
+            });
+          }
         });
       })
-      .catch(err => console.log('Service Worker registration failed:', err));
+      .catch(err => console.log('❌ Service Worker registration failed:', err));
   });
 }
 
-// Variable to store the beforeinstallprompt event
 let deferredPrompt;
 
-// Check if the app is already installed
 function isAppInstalled() {
-  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  return window.matchMedia('(display-mode: standalone)').matches || 
+         window.navigator.standalone === true;
 }
 
-// Listen for the beforeinstallprompt event
+// Install prompt
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
+  
   if (!isAppInstalled()) {
-    showInstallPrompt();
+    showInstallButton();
   }
 });
 
-// Function to show the install prompt
-function showInstallPrompt() {
+function showInstallButton() {
+  let installBtn = document.getElementById('pwa-install-btn');
+  if (!installBtn) {
+    installBtn = document.createElement('button');
+    installBtn.id = 'pwa-install-btn';
+    installBtn.innerHTML = '<i class="fas fa-download"></i> Install App';
+    installBtn.style.cssText = `
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      z-index: 9999;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    `;
+    document.body.appendChild(installBtn);
+    
+    installBtn.addEventListener('click', installApp);
+  }
+}
+
+function installApp() {
   if (deferredPrompt) {
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then((choiceResult) => {
       if (choiceResult.outcome === 'accepted') {
-        console.log('User accepted the install prompt');
-        showToast('The application has been updated successfully.!', 'success', 'fas fa-check-circle');
-      } else {
-        console.log('User dismissed the install prompt');
-        showToast('App update rejected.', 'error', 'fas fa-exclamation-circle');
+        console.log('✅ App installed');
+        showToast('App installed successfully!', 'success', 'fas fa-check-circle');
+        const btn = document.getElementById('pwa-install-btn');
+        if (btn) btn.remove();
       }
       deferredPrompt = null;
     });
   }
 }
 
-// Function to show an update button when a new version is available
-function showUpdateButton() {
-  let updateButton = document.getElementById('update-button');
-  if (!updateButton) {
-    updateButton = document.createElement('button');
-    updateButton.id = 'update-button';
-    updateButton.textContent = 'Update App Now';
-    updateButton.style.cssText = 'position: fixed; bottom: 20px; left: 20px; padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; z-index: 1000;';
-    document.body.appendChild(updateButton);
+function showUpdateNotification() {
+  let updateBtn = document.getElementById('pwa-update-btn');
+  if (!updateBtn) {
+    updateBtn = document.createElement('button');
+    updateBtn.id = 'pwa-update-btn';
+    updateBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Update Available';
+    updateBtn.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      z-index: 9999;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      font-size: 14px;
+      font-weight: 600;
+      animation: pulse 2s infinite;
+    `;
+    document.body.appendChild(updateBtn);
     
-    updateButton.addEventListener('click', () => {
-      if (navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage({ action: 'skipWaiting' });
-        window.location.reload();
-      }
+    updateBtn.addEventListener('click', () => {
+      window.location.reload();
     });
   }
-  updateButton.style.display = 'block';
 }
 
-// Listen for messages from Service Worker
-navigator.serviceWorker.addEventListener('message', (event) => {
-  if (event.data && event.data.action === 'skipWaiting') {
-    window.location.reload();
-  }
-});
-
-// Function to create the navigation
 function createNavigation() {
   let container = document.getElementById('tf-navigation');
   if (!container) {
@@ -138,21 +167,20 @@ function createNavigation() {
   const ul = document.createElement('ul');
   ul.className = 'tf-nav-list';
   const currentRelativePath = getRelativePath();
-  console.log('Current relative path:', currentRelativePath);
+  
   navConfig.pages.forEach(page => {
     const li = document.createElement('li');
     li.className = 'tf-nav-item';
     li.setAttribute('data-page', page.id);
     li.innerHTML = `<i class="${page.icon}"></i> ${page.name}`;
     
-    console.log(`Comparing: currentRelativePath=${currentRelativePath} with page.relativePath=${page.relativePath}`);
     if (currentRelativePath === page.relativePath) {
       li.classList.add('active');
     }
     
     li.addEventListener('click', (e) => {
       e.preventDefault();
-      navigateToPage(page.id, page.relativePath);
+      navigateToPage(page.id, page.relativePath, page.url);
     });
     ul.appendChild(li);
   });
@@ -183,21 +211,20 @@ function createNavigation() {
   });
 }
 
-// Function to navigate to a page
-function navigateToPage(pageId, relativePath) {
+function navigateToPage(pageId, relativePath, url) {
   const currentRelativePath = getRelativePath();
   const page = navConfig.pages.find(p => p.id === pageId);
   if (!page) return;
   
-  console.log(`Navigating: currentRelativePath=${currentRelativePath}, targetRelativePath=${relativePath}`);
   if (currentRelativePath === relativePath) {
-    showToast('You are already on this page', 'error', 'fas fa-exclamation-circle');
+    showToast('Already on this page', 'error', 'fas fa-info-circle');
     return;
   }
   
-  showToast(` Go To ${page.name}`, 'success', 'fas fa-check-circle');
+  showToast(`Loading ${page.name}...`, 'success', 'fas fa-spinner fa-spin');
   
-  window.location.href = page.url;
+  // Navigate مباشرة
+  window.location.href = url;
   
   const modal = document.getElementById('tf-nav-modal');
   const fab = document.getElementById('tf-nav-fab');
@@ -207,7 +234,6 @@ function navigateToPage(pageId, relativePath) {
   }
 }
 
-// Function to show toast notification
 function showToast(message, type, iconClass) {
   const toast = document.getElementById('tf-nav-toast');
   if (!toast) return;
@@ -221,7 +247,6 @@ function showToast(message, type, iconClass) {
   }, 3000);
 }
 
-// Initial page load
 document.addEventListener('DOMContentLoaded', () => {
   createNavigation();
 });

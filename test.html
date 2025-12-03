@@ -11,7 +11,7 @@
 
     <script>
 (async () => {
-    const API = "https://darkviolet-antelope-523488.hostingersite.com/wp-json";
+    const API = "https://old.tenderfrozen.com/wp-json";
     const PHONE = "1";
     const PASSWORD = "123456";
 
@@ -36,7 +36,7 @@
 
     // 2) جلب الأوردرات من WooCommerce (باستخدام Token الخاص بالموظف)
     async function getOrders(token) {
-        const res = await fetch(`${API}/wc/v3/orders`, {
+        const res = await fetch(`${API}/wc/v3/orders?per_page=100&page=2`, {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${token}`,

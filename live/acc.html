@@ -14,9 +14,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="theme-color" content="#1a73e8">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    />
-
     <style>
       /* ============================================
             CSS VARIABLES & RESET
@@ -2135,9 +2132,9 @@
       // ============================================
       const CONFIG = {
         API_BASE:
-          "https://order.tenderfrozen.com/wp-json/ffa/v1",
+          "https://tenderfrozen.com/wp-json/ffa/v1",
         SHRMS_API_BASE:
-          "https://order.tenderfrozen.com/wp-json/shrms/v1",
+          "https://tenderfrozen.com/wp-json/shrms/v1",
         VERSION: "1.0.0",
         DEBUG_MODE: false,
         STORAGE_PREFIX: "ffa_",
@@ -2512,6 +2509,30 @@
           if (cached) return cached;
 
           const response = await this.request("/vaults");
+
+          // قراءة بيانات اليوزر من اللوكال ستورج
+          const user = JSON.parse(localStorage.getItem("ffa_user"));
+
+          // لو سوبر أدمن → رجّع زي ما هو
+          if (user?.role === "super_admin") {
+            STATE.setCache("vaults", response);
+            return response;
+          }
+
+          // لو أدمن → فلترة حسب IDs معينة
+          if (user?.role === "admin") {
+            const ADMIN_ALLOWED_VAULTS = ["16"]; 
+
+            const filtered = {
+              ...response,
+              data: response.data.filter(v => ADMIN_ALLOWED_VAULTS.includes(v.id))
+            };
+
+            STATE.setCache("vaults", filtered);
+            return filtered;
+          }
+
+          // أي رول تاني → رجّع الريسبونس كامل (اختياري)
           STATE.setCache("vaults", response);
           return response;
         },
